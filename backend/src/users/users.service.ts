@@ -1,25 +1,36 @@
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from "@nestjs/config";
-import { User } from "@/generated/prisma/client";
-import { CreateUserRequest } from "./dto/create-user-request";
-import { PrismaService } from "../prisma/prisma.service";
+import { Injectable, UnprocessableEntityException } from '@nestjs/common';
+import * as bcryptjs from 'bcryptjs';
+import { CreateUserRequest } from './dto/create-user.dto';
+import { UserWhereUniqueInput } from "@/generated/prisma/models";
+import { PrismaService } from "@/src/prisma/prisma.service";
 
 @Injectable()
 export class UsersService {
-  constructor(
-    private readonly configService: ConfigService,
-    private readonly prismaService: PrismaService
-  ){}
+  constructor(private readonly prismaService: PrismaService) {}
 
-  async createUser(data: CreateUserRequest): Promise<User> {
-    return await this.prismaService.user.create({
-      data,
-    })
+  async createUser(data: CreateUserRequest) {
+    try {
+      return await this.prismaService.user.create({
+        data: {
+          ...data,
+          password: await bcryptjs.hash(data.password, 10),
+        },
+        select: {
+          email: true,
+          id: true,
+        },
+      });
+    } catch (err) {
+      if (err.code === 'P2002') {
+        throw new UnprocessableEntityException('Email already exists.');
+      }
+      throw err;
+    }
   }
 
-  async getUserByEmail(email: string): Promise<User | null> {
-    return this.prismaService.user.findUnique({
-      where: { email },
+  async getUser(filter: UserWhereUniqueInput) {
+    return this.prismaService.user.findUniqueOrThrow({
+      where: filter,
     });
   }
 }

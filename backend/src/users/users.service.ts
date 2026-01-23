@@ -1,14 +1,15 @@
+import { UserWhereUniqueInput } from "@/generated/prisma/models";
+import { PrismaService } from "@/src/prisma/prisma.service";
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import * as bcryptjs from 'bcryptjs';
 import { CreateUserRequest } from './dto/create-user.dto';
-import { UserWhereUniqueInput } from "@/generated/prisma/models";
-import { PrismaService } from "@/src/prisma/prisma.service";
+import { UserResponse } from './dto/user.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(private readonly prismaService: PrismaService) { }
 
-  async createUser(data: CreateUserRequest) {
+  async createUser(data: CreateUserRequest): Promise<UserResponse> {
     try {
       return await this.prismaService.user.create({
         data: {
@@ -17,7 +18,7 @@ export class UsersService {
         },
         select: {
           email: true,
-          id: true,
+          name: true,
         },
       });
     } catch (err) {

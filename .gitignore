@@ -63,3 +63,4 @@
 */**/generated/prisma
 backend/yarn.lock
 backend/yarn.lock
+frontend/yarn.lock

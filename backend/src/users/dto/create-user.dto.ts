@@ -7,3 +7,11 @@ export class CreateUserRequest {
   @IsStrongPassword()
   password: string;
 }
+export class CreateNewsletterRequest {
+  @IsEmail()
+  email: string;
+
+  @IsStrongPassword()
+  password?: string;
+}
+

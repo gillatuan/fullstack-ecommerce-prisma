@@ -1,7 +1,7 @@
 'use client';
 
 
-import { login } from '@/app/actions/auth';
+import { login } from '@/actions/auth';
 import { useActionState } from 'react';
 
 

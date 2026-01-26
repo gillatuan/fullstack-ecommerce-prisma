@@ -1,6 +1,6 @@
 'use client'
 
-import { signup } from "@/app/actions/auth";
+import { signup } from "@/actions/auth";
 import { Button, Link, Stack, TextField } from "@mui/material";
 import NextLink from "next/link";
 import { useActionState } from "react";

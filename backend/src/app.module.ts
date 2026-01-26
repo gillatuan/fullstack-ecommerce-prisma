@@ -5,6 +5,7 @@ import { UsersModule } from './users/users.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { UsersLetterModule } from './users_letter/users_letter.module';
+import { AuthModule } from "./auth/auth.module";
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { UsersLetterModule } from './users_letter/users_letter.module';
     ConfigModule.forRoot(),
     UsersModule,
     UsersLetterModule,
+    AuthModule
   ],
   controllers: [],
   providers: [],

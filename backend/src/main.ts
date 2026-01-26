@@ -12,10 +12,9 @@ async function bootstrap() {
   app.use(cookieParser());
 
   // set prefix
-  app.setGlobalPrefix('api');
   app.enableVersioning({
     type: VersioningType.URI,
-    defaultVersion: ['1', '2'], //v1, v2
+    prefix: 'api/v',
   });
 
   await app.listen(app.get(ConfigService).getOrThrow('PORT') ?? 3001);

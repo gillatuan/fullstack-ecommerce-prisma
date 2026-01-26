@@ -9,3 +9,12 @@ export interface SessionPayload extends JWTPayload {
   iat?: number;
   exp?: number;
 }
+
+export type LoginFormState = {
+  error?: {
+    email?: string;
+    password?: string;
+  };
+  message?: string
+  data?: JWTPayload | null;
+};

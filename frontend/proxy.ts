@@ -13,6 +13,7 @@ export function proxy(request: NextRequest) {
   ) {
     return Response.redirect(new URL("/auth/login", request.url));
   }
+
 }
 
 export const config = {

@@ -16,6 +16,19 @@
       "console": "integratedTerminal",
       "restart": true,
       "autoAttachChildProcesses": true
+    },
+    {
+      "cwd": "${workspaceFolder}/frontend",
+      "type": "node",
+      "request": "launch",
+      "name": "Frontend",
+      "runtimeExecutable": "yarn",
+      "runtimeArgs": ["run", "dev"],
+      "skipFiles": ["<node_internals>/**"],
+      "program": "${workspaceFolder}/frontend",
+      "console": "integratedTerminal",
+      "restart": true,
+      "autoAttachChildProcesses": true
     }
   ]
 }

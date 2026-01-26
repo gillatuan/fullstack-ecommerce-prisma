@@ -15,7 +15,7 @@ export default function Signup() {
 				{state?.errors?.email && <p>{state.errors.email}</p>}
 
 				<TextField label="Password" variant="outlined" type="password" />
-				{state?.errors?.password && (
+				{/* {state?.errors?.password && (
 					<div>
 						<p>Password must:</p>
 						<ul>
@@ -24,7 +24,7 @@ export default function Signup() {
 							))}
 						</ul>
 					</div>
-				)}
+				)} */}
 				
 				<Button variant="contained" disabled={pending} type="submit">Signup</Button>
 				<Link component={NextLink} href="/auth/login" className="self-center">

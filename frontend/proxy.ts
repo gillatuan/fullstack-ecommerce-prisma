@@ -1,14 +1,14 @@
 import { NextRequest } from "next/server";
 
-const unauthorizedRoutes = ["/auth/login", "/auth/signup"];
+import {unauthenticatedRoutes} from '@/app/common/constants/routes'
 
 export function proxy(request: NextRequest) {
   const auth = request.cookies.get("Authentication")?.value;
 
   if (
     !auth &&
-    !unauthorizedRoutes.some((route) =>
-      request.nextUrl.pathname.startsWith(route)
+    !unauthenticatedRoutes.some((route) =>
+      request.nextUrl.pathname.startsWith(route.path)
     )
   ) {
     return Response.redirect(new URL("/auth/login", request.url));

@@ -9,7 +9,7 @@ export default function Signup() {
 	const [state, action, pending] = useActionState(signup, undefined)
 
 	return (
-		<form action={signup}>
+		<form action={action}>
 			<Stack spacing={2} className="w-full max-w-xs">
 				<TextField label="Email" variant="outlined" type="email" />
 				{state?.errors?.email && <p>{state.errors.email}</p>}

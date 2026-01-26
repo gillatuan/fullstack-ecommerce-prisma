@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 
-import {unauthenticatedRoutes} from '@/app/common/constants/routes'
+import {unauthenticatedRoutes} from '@/common/constants/routes'
 
 export function proxy(request: NextRequest) {
   const auth = request.cookies.get("Authentication")?.value;

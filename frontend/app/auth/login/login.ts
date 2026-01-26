@@ -1,7 +1,7 @@
 "use server"
 
-import { post } from "@/app/common/util/fetch"
-import { FormResponse } from "@/app/types/form-response"
+import { post } from "@/common/util/fetch"
+import { FormResponse } from "@/types/form-response"
 import { API_URL, API_VERSION, AUTHENTICATION_COOKIE } from "@/constants/common"
 import { jwtDecode } from "jwt-decode"
 import { cookies } from "next/headers"

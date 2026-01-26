@@ -6,7 +6,7 @@ import NextLink from "next/link";
 import { useActionState } from "react";
 
 export default function Login () {
-	const [ state, formAction ] = useActionState( login, { error: "" } );
+	const [ state, formAction, isPending ] = useActionState( login, { error: "" } );
 
 
 	return (
@@ -28,7 +28,7 @@ export default function Login () {
 					variant="outlined"
 					type="password"
 				/>
-				<Button type="submit" variant="contained">Login</Button>
+				<Button type="submit" variant="contained" disabled={isPending}>Login</Button>
 				<Link component={NextLink} href="/auth/signup" className="self-center">
 					Signup
 				</Link>

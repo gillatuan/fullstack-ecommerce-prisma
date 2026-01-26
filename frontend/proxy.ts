@@ -1,30 +1,18 @@
-import { verifySession } from '@/app/lib/jwt';
-import { NextRequest, NextResponse } from 'next/server';
-import { UserRole } from './app/types/auth.d';
+import { NextRequest } from "next/server";
+import { unauthenticatedRoutes } from "./app/common/constants/routes";
+import authenticated from "./actions/authenticated";
 
-
-export async function proxy(req: NextRequest) {
-  const token = req.cookies.get('session')?.value;
-
-
-  if (!token) {
-    return NextResponse.redirect(new URL('/login', req.url));
-  }
-
-
-  try {
-    const session = await verifySession(token);
-
-
-    if (req.nextUrl.pathname.startsWith('/admin') && session.role !== UserRole.ADMIN) {
-      return NextResponse.redirect(new URL('/403', req.url));
-    }
-  } catch {
-    return NextResponse.redirect(new URL('/login', req.url));
+export function proxy(request: NextRequest) {
+  if (
+    !authenticated() &&
+    !unauthenticatedRoutes.some((route: { path: string; }) =>
+      request.nextUrl.pathname.startsWith(route.path)
+    )
+  ) {
+    return Response.redirect(new URL("/auth/login", request.url));
   }
 }
 
-
 export const config = {
-  matcher: ['/dashboard/:path*', '/admin/:path*'],
+  matcher: ["/((?!api|_next/static|_next/image|.*\\.png$).*)"],
 };

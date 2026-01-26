@@ -11,7 +11,7 @@ export default async function login(
   _prevState: FormResponse,
   formData: FormData,
 ) {
-  const res = await post(`${API_URL}/${API_VERSION}/auth/login`, formData)
+  const res = await post('auth/login', formData)
   if (res.error) {
     return { error: res.error }
   }

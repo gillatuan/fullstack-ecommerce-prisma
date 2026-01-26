@@ -1,4 +1,11 @@
-import { Body, Controller, Post, Version } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  UseInterceptors,
+  Version,
+} from '@nestjs/common';
+import { NoFilesInterceptor } from '@nestjs/platform-express';
 import { CreateUserRequest } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 
@@ -8,6 +15,7 @@ export class UsersController {
 
   @Version('1')
   @Post()
+  @UseInterceptors(NoFilesInterceptor())
   create(@Body() createUserRequest: CreateUserRequest) {
     return this.usersService.createUser(createUserRequest);
   }

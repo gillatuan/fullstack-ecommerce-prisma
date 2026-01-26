@@ -1,7 +1,7 @@
 import { UserWhereUniqueInput } from '@/generated/prisma/models';
 import { PrismaService } from '@/src/prisma/prisma.service';
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
-import * as bcryptjs from 'bcryptjs';
+import * as bcrypt from 'bcrypt';
 import {
   CreateNewsletterRequest,
   CreateUserRequest,
@@ -17,7 +17,7 @@ export class UsersService {
       return await this.prismaService.user.create({
         data: {
           ...data,
-          password: await bcryptjs.hash(data.password, 10),
+          password: await bcrypt.hash(data.password, 10),
         },
         select: {
           email: true,
@@ -33,7 +33,7 @@ export class UsersService {
   }
 
   async getUser(filter: UserWhereUniqueInput) {
-    return this.prismaService.user.findUniqueOrThrow({
+    return await this.prismaService.user.findUnique({
       where: filter,
     });
   }

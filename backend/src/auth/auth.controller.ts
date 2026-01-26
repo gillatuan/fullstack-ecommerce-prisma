@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Version } from '@nestjs/common';
+import type { User } from '@/generated/prisma/client';
+import { Controller, Post, Res, UseGuards, Version } from '@nestjs/common';
+import type { Response } from 'express';
+import { CurrentUser } from '../decorator/current-user.decorator';
 import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { LocalAuthGuard } from './guards/local-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -9,7 +11,11 @@ export class AuthController {
 
   @Post('login')
   @Version('1')
-  login(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.login(createAuthDto);
+  @UseGuards(LocalAuthGuard)
+  login(
+    @CurrentUser() user: User,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    return this.authService.login(user, response);
   }
 }

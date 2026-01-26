@@ -1,26 +1,58 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import ms from 'ms';
+import * as bcrypt from 'bcrypt';
+import { Response } from 'express';
+import { UsersService } from '../users/users.service';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { User } from "@/generated/prisma/client";
+import { TokenPayload } from "../types/token-payload";
 
 @Injectable()
 export class AuthService {
-  login(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly configService: ConfigService,
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async login(user: User, response: Response) {
+    const expires = new Date();
+    expires.setMilliseconds(
+      expires.getMilliseconds() +
+        ms(this.configService.getOrThrow<string>('JWT_EXPIRATION') as unknown as ms.StringValue),
+    );
+
+    const tokenPayload: TokenPayload = {
+      userId: user.id,
+    };
+    const token = this.jwtService.sign(tokenPayload);
+
+    response.cookie('Authentication', token, {
+      secure: true,
+      httpOnly: true,
+      expires,
+    });
+
+    return { tokenPayload };
   }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  async verifyUser(email: string, password: string) {
+    try {
+      // if not found, throw UnauthorizedException
+      const user = await this.usersService.getUser({ email });
+      if (!user) {
+        throw new UnauthorizedException('Email not found.');
+      }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+      // verify password
+      const authenticated = await bcrypt.compare(password, user.password);
+      if (!authenticated) {
+        throw new UnauthorizedException();
+      }
+      return user;
+    } catch (err) {
+      throw new UnauthorizedException('Credentials are not valid.');
+    }
   }
 }

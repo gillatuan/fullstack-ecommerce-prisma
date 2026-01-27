@@ -1,5 +1,5 @@
 import "@/app/globals.css";
-import Header from "@/components/header";
+import Header from "@/components/Header/header";
 import { Container, CssBaseline } from "@mui/material";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";

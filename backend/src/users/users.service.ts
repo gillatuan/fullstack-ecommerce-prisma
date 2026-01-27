@@ -2,10 +2,7 @@ import { UserWhereUniqueInput } from '@/generated/prisma/models';
 import { PrismaService } from '@/src/prisma/prisma.service';
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
-import {
-  CreateNewsletterRequest,
-  CreateUserRequest,
-} from './dto/create-user.dto';
+import { CreateUserRequest } from './dto/create-user.dto';
 import { UserResponse } from './dto/user.dto';
 
 @Injectable()
@@ -36,26 +33,5 @@ export class UsersService {
     return await this.prismaService.user.findUnique({
       where: filter,
     });
-  }
-
-  async createNewsletter(data: CreateNewsletterRequest) {
-    try {
-      return await this.prismaService.usersLetter.create({
-        data: {
-          email: data.email,
-        },
-        select: {
-          email: true,
-          id: true,
-        },
-      });
-    } catch (err) {
-      if (err.code === 'P2002') {
-        throw new UnprocessableEntityException(
-          'Email already subscribed to newsletter.',
-        );
-      }
-      throw err;
-    }
   }
 }

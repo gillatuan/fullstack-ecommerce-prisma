@@ -1,12 +1,12 @@
+import { User } from '@/generated/prisma/client';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
-import ms from 'ms';
-import * as bcrypt from 'bcrypt';
-import { Response } from 'express';
-import { UsersService } from '../users/users.service';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { User } from "@/generated/prisma/client";
-import { TokenPayload } from "../types/token-payload";
+import * as bcrypt from 'bcrypt';
+import { Response } from 'express';
+import ms from 'ms';
+import { TokenPayload } from '../../types/token-payload';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +20,11 @@ export class AuthService {
     const expires = new Date();
     expires.setMilliseconds(
       expires.getMilliseconds() +
-        ms(this.configService.getOrThrow<string>('JWT_EXPIRATION') as unknown as ms.StringValue),
+        ms(
+          this.configService.getOrThrow<string>(
+            'JWT_EXPIRATION',
+          ) as unknown as ms.StringValue,
+        ),
     );
 
     const tokenPayload: TokenPayload = {

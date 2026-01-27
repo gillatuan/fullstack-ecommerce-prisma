@@ -1,11 +1,12 @@
+import { AuthModule } from '@/src/auth/auth.module';
+import { CommentsModule } from '@/src/comments/comments.module';
+import { PostsModule } from '@/src/posts/posts.module';
+import { UsersModule } from '@/src/users/users.module';
 import { Module } from '@nestjs/common';
-import { LoggerModule } from 'nestjs-pino';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { UsersModule } from './users/users.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { LoggerModule } from 'nestjs-pino';
 import { join } from 'path';
-import { UsersLetterModule } from './users_letter/users_letter.module';
-import { AuthModule } from "./auth/auth.module";
 
 @Module({
   imports: [
@@ -35,8 +36,9 @@ import { AuthModule } from "./auth/auth.module";
     }),
     ConfigModule.forRoot(),
     UsersModule,
-    UsersLetterModule,
-    AuthModule
+    AuthModule,
+    PostsModule,
+    CommentsModule,
   ],
   controllers: [],
   providers: [],

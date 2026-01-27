@@ -12,8 +12,6 @@ export default function LoginForm () {
   const [ state, formAction, isPending ] = useActionState( login, initialState );
   const [ loginValue, setLoginValue ] = useState( { email: "", password: "" } );
 
-  console.log( 'state', state );
-
   return (
     <form action={formAction} className="rounded-lg" noValidate>
       {!state.data && state.message && (

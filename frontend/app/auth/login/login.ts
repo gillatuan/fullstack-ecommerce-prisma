@@ -2,6 +2,7 @@
 
 import { post } from "@/common/util/fetch"
 import { AUTHENTICATION_COOKIE } from "@/constants/common"
+import { loginFormSchema } from "@/schemas/authSchema"
 import { LoginFormState } from "@/types/auth"
 import { jwtDecode } from "jwt-decode"
 import { cookies } from "next/headers"
@@ -11,18 +12,22 @@ export default async function login(
   _: LoginFormState,
   formData: FormData,
 ): Promise<LoginFormState> {
-  const email = formData.get("email") as string
-  const password = formData.get("password") as string
+  const validatedFields = loginFormSchema.safeParse({
+    email: formData.get('email'),
+    password: formData.get('password'),
+  });
 
-  if (!email) {
-    return { error: { email: "Email is required" } }
+  // Return early if the form data is invalid
+  if (!validatedFields.success) {
+    return {
+      error: {
+        email: validatedFields.error.flatten().fieldErrors.email?.[0] || "",
+        password: validatedFields.error.flatten().fieldErrors.password?.[0] || "",
+      },
+    };
   }
 
-  if (!password) {
-    return { error: { password: "Password is required" } }
-  }
-
-  const res = await post("auth/login", formData)
+  const res = await post("auth/login", validatedFields.data)
   if (res.error) {
     return {
       message: res.error,

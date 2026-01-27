@@ -1,7 +1,7 @@
-import { AuthModule } from '@/src/auth/auth.module';
-import { CommentsModule } from '@/src/comments/comments.module';
-import { PostsModule } from '@/src/posts/posts.module';
-import { UsersModule } from '@/src/users/users.module';
+import { AuthModule } from '@/auth/auth.module';
+import { CommentsModule } from '@/comments/comments.module';
+import { PostsModule } from '@/posts/posts.module';
+import { UsersModule } from '@/users/users.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';

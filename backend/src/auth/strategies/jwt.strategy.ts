@@ -1,4 +1,4 @@
-import { TokenPayload } from '@/types/token-payload';
+import { TokenPayload } from 'types/token-payload';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';

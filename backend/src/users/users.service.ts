@@ -1,5 +1,5 @@
-import { UserWhereUniqueInput } from '@/generated/prisma/models';
-import { PrismaService } from '@/src/prisma/prisma.service';
+import { UserWhereUniqueInput } from 'generated/prisma/models';
+import { PrismaService } from '../prisma/prisma.service';
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { CreateUserRequest } from './dto/create-user.dto';

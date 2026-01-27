@@ -24,8 +24,4 @@ export class UsersController {
   me(@Current) {
     return this.usersService.getUser({email: ''})
   } */
-  @Post('newsletter')
-  createNewsletter(@Body() createUserRequest: CreateUserRequest) {
-    return this.usersService.createNewsletter(createUserRequest);
-  }
 }

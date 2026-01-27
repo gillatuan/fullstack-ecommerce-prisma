@@ -10,6 +10,10 @@ generator client {
 
   // Fix Object.defineProperty(exports, "__esModule", { value: true });
   moduleFormat = "cjs"
+
+  // generate imports with no extension by setting importFileExtension to an empty string
+  // https://github.com/prisma/prisma/issues/28335
+  importFileExtension = "" 
 }
 
 datasource db {

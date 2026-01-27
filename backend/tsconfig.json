@@ -13,10 +13,23 @@
     "target": "es2020",
     "sourceMap": true,
     "outDir": "./dist",
+    "baseUrl": "./",
     "paths": {
       "@/*": [
-        "./*"
-      ]
+        "./src/*"
+      ],
+      "decorator/*": [
+        "decorator/*"
+      ],
+      "prisma/*": [
+        "prisma/*"
+      ],
+      "types/*": [
+        "types/*"
+      ],
+      "const/*": [
+        "const/*"
+      ],
     },
     "incremental": true,
     "skipLibCheck": true,

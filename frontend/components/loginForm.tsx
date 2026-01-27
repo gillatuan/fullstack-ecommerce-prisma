@@ -10,10 +10,10 @@ const initialState: LoginFormState = { error: { email: "", password: "" } };
 
 export default function LoginForm () {
   const [ state, formAction, isPending ] = useActionState( login, initialState );
-  const [ loginValue, setLoginValue ] = useState( {email: "", password: ""} );
+  const [ loginValue, setLoginValue ] = useState( { email: "", password: "" } );
 
-  console.log('state', state);
-  
+  console.log( 'state', state );
+
   return (
     <form action={formAction} className="rounded-lg" noValidate>
       {!state.data && state.message && (
@@ -32,7 +32,7 @@ export default function LoginForm () {
           variant="outlined"
           type="email"
           value={loginValue.email}
-          onChange={(e) => setLoginValue({...loginValue, email: e.target.value})} 
+          onChange={( e ) => setLoginValue( { ...loginValue, email: e.target.value } )}
         />
         <TextField
           error={!!state.error?.password}
@@ -42,7 +42,7 @@ export default function LoginForm () {
           variant="outlined"
           type="password"
           value={loginValue.password}
-          onChange={(e) => setLoginValue({...loginValue, password: e.target.value})}
+          onChange={( e ) => setLoginValue( { ...loginValue, password: e.target.value } )}
         />
         <Button type="submit" variant="contained" disabled={isPending}>Login</Button>
         <Link component={NextLink} href="/auth/signup" className="self-center">

@@ -19,7 +19,7 @@ export default function SignupForm () {
       )}
 
       {state.data && (
-        <div className="text-green-500 mb-4">Login successful!</div>
+        <div className="text-green-500 mb-4">Signup successful!</div>
       )}
       <Stack spacing={2} className="w-150 grid grid-cols-1 justify-items-center p-8 gap-4">
         <TextField
@@ -30,7 +30,7 @@ export default function SignupForm () {
           variant="outlined"
           type="text"
           value={loginValue.name}
-          onChange={( e ) => setLoginValue( { ...loginValue, email: e.target.value } )}
+          onChange={( e ) => setLoginValue( { ...loginValue, name: e.target.value } )}
         />
         <TextField
           error={!!state.error?.email}

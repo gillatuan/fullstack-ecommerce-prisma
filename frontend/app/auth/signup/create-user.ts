@@ -1,13 +1,12 @@
-"use server";
+"use server"
 
-import { FormError } from "@/common/form-error.interface";
-import { post } from "@/common/util/fetch";
-import { SignupFormState } from "@/types/auth";
-import { redirect } from "next/navigation";
+import { post } from "@/common/util/fetch"
+import { SignupFormState } from "@/types/auth"
+import { redirect } from "next/navigation"
 
 export default async function createUser(
   _prevState: SignupFormState,
-  formData: FormData
+  formData: FormData,
 ): Promise<SignupFormState> {
   const email = formData.get("email") as string
   const password = formData.get("password") as string
@@ -29,5 +28,5 @@ export default async function createUser(
     }
   }
 
-  redirect("/auth/login");
+  redirect("/auth/login")
 }

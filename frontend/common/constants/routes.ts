@@ -15,6 +15,14 @@ export const unauthenticatedRoutes = [
 
 export const authenticatedRoutes = [
   {
+    title: "",
+    path: "/",
+  },
+  {
+    title: "Dashboard",
+    path: "/dashboard",
+  },
+  {
     title: "Blog",
     path: "/blog/posts",
   },

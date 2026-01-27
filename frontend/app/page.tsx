@@ -1,3 +1,3 @@
-export default function Home () {
-  return <>HOME page</>;
+export default function Homepage() {
+  return <h1>Homepage</h1>;
 }

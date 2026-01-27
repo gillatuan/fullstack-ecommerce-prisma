@@ -1,7 +1,7 @@
 export const unauthenticatedRoutes = [
   {
     title: "Blog",
-    path: "/blog",
+    path: "/blog/posts",
   },
   {
     title: "Login",
@@ -16,7 +16,7 @@ export const unauthenticatedRoutes = [
 export const authenticatedRoutes = [
   {
     title: "Blog",
-    path: "/blog",
+    path: "/blog/posts",
   },
   {
     title: "Products",

@@ -19,6 +19,7 @@ import { AuthContext } from "@/app/auth/auth-context";
 import { redirect } from "next/navigation";
 import { authenticatedRoutes, unauthenticatedRoutes } from "@/common/constants/routes";
 import authenticated from "@/app/auth/authenticated";
+import Link from "next/link";
 
 const settings = [
   { title: "Profile", url: "/profile", action: () => redirect("/profile")  },
@@ -38,8 +39,10 @@ export default function Header() {
     setAnchorElNav(event.currentTarget);
   };
 
-  const handleCloseNavMenu = () => {
+  const handleCloseNavMenu = (url: string) => {
     setAnchorElNav(null);
+
+    redirect(url);
   };
 
   const pages = isAuthenticated ? authenticatedRoutes : unauthenticatedRoutes
@@ -54,8 +57,8 @@ export default function Header() {
           <Typography
             variant="h6"
             noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
+            component={Link}
+            href="/"
             sx={{
               mr: 2,
               display: { xs: "none", md: "flex" },
@@ -99,7 +102,7 @@ export default function Header() {
               }}
             >
               {pages.map((page) => (
-                <MenuItem key={page.path} onClick={handleCloseNavMenu}>
+                <MenuItem key={page.path} onClick={() => handleCloseNavMenu(page.path)}>
                   <Typography textAlign="center">{page.title}</Typography>
                 </MenuItem>
               ))}
@@ -111,8 +114,8 @@ export default function Header() {
           <Typography
             variant="h5"
             noWrap
-            component="a"
-            href="#app-bar-with-responsive-menu"
+            component={Link}
+            href="/"
             sx={{
               mr: 2,
               display: { xs: "flex", md: "none" },
@@ -130,7 +133,7 @@ export default function Header() {
             {pages.map((page) => (
               <Button
                 key={page.path}
-                onClick={handleCloseNavMenu}
+                onClick={() => handleCloseNavMenu(page.path)}
                 sx={{ my: 2, color: "white", display: "block" }}
               >
                 {page.title}
@@ -181,7 +184,10 @@ const Settings = () => {
         onClose={handleCloseUserMenu}
       >
         {settings.map((setting) => (
-          <MenuItem key={setting.title} onClick={setting.action}>
+          <MenuItem key={setting.title} onClick={() => {
+            handleCloseUserMenu();
+            setting.action();
+          }}>
             <Typography textAlign="center">{setting.title}</Typography>
           </MenuItem>
         ))}

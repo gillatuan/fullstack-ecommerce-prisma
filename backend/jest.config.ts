@@ -11,6 +11,8 @@ const config: Config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^const/(.*)$': '<rootDir>/const/$1',
+    '^decorator/(.*)$': '<rootDir>/decorator/$1',
+    '^generated/(.*)$': '<rootDir>/generated/$1',
   },
 
   collectCoverageFrom: ['src/**/*.(t|j)s'],

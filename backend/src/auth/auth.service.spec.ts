@@ -1,16 +1,20 @@
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
+import * as bcrypt from 'bcrypt';
+import {
+  JWT_AUTHENTICATION,
+  JWT_EXPIRATION,
+  JWT_SECRET,
+  mockUser,
+} from 'const/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';
-import { JWT_AUTHENTICATION, JWT_EXPIRATION, JWT_SECRET } from "const/common";
-import { AuthUser } from "@/auth/types/auth";
-import { PrismaService } from "../prisma/prisma.service";
 
 jest.mock('bcrypt', () => ({
   compare: jest.fn(),
 }));
-import * as bcrypt from 'bcrypt';
 
 describe('AuthService', () => {
   let authservice: AuthService;
@@ -23,7 +27,10 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        { provide: PrismaService, useValue: {user: { findUnique: jest.fn(), create: jest.fn() } }},
+        {
+          provide: PrismaService,
+          useValue: { user: { findUnique: jest.fn(), create: jest.fn() } },
+        },
         { provide: UsersService, useValue: { getUser: jest.fn() } },
         { provide: JwtService, useValue: { sign: jest.fn() } },
         { provide: ConfigService, useValue: { getOrThrow: jest.fn() } },
@@ -43,15 +50,6 @@ describe('AuthService', () => {
 
   describe('Login', () => {
     it('should sign JWT token and set authentication cookie', async () => {
-      const mockUser: AuthUser = {
-        id: 1,
-        name: 'testuser',
-        email: 'logged-user@example.com',
-        password: 'hashedpassword',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-
       const mockResponse = {
         cookie: jest.fn(),
       } as any;
@@ -90,11 +88,6 @@ describe('AuthService', () => {
 
   describe('verifyUser', () => {
     it('should return user if credentials are valid', async () => {
-      const mockUser = {
-        email: 'test@example.com',
-        password: 'hashedpassword',
-      };
-
       (usersService.getUser as jest.Mock).mockResolvedValue(mockUser);
       (bcrypt.compare as jest.Mock).mockResolvedValue(true);
 

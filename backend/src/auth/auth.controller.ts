@@ -1,4 +1,4 @@
-import { CurrentUser } from 'decorator/current-user.decorator';
+import { CurrentUser } from 'decorators/current-user.decorator';
 import type { User } from 'generated/prisma/client';
 import { AuthService } from '@/auth/auth.service';
 import { LocalAuthGuard } from '@/auth/guards/local-auth.guard';

@@ -19,7 +19,7 @@
         "./src/*"
       ],
       "decorator/*": [
-        "decorator/*"
+        "decorators/*"
       ],
       "prisma/*": [
         "prisma/*"

@@ -3,6 +3,7 @@ export type AuthUser = {
   name: string;
   email: string;
   password: string;
+  roleId: number;
   createdAt: Date | null;
   updatedAt: Date | null;
 };

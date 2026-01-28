@@ -66,6 +66,7 @@ describe('AuthService', () => {
       // 👉 ASSERT jwt sign
       expect(jwtService.sign).toHaveBeenCalledWith({
         userId: mockUser.id,
+        roleId: mockUser.roleId,
       });
 
       // 👉 ASSERT cookie
@@ -81,7 +82,7 @@ describe('AuthService', () => {
 
       // 👉 ASSERT return value
       expect(result).toEqual({
-        tokenPayload: { userId: mockUser.id },
+        tokenPayload: { userId: mockUser.id, roleId: mockUser.roleId },
       });
     });
   });

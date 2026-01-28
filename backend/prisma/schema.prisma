@@ -46,6 +46,15 @@ model Comment {
   post   Post @relation(fields: [postId], references: [id])
 }
 
+model Role {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  users     User[]
+}
+
 model User {
   id        Int       @id @default(autoincrement())
   email     String    @unique
@@ -53,7 +62,9 @@ model User {
   name      String?
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
-
+  
+  roleId    Int       
+  role      Role      @relation(fields: [roleId], references: [id])
   posts    Post[]
   comments Comment[]
 }

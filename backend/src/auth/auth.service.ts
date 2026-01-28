@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { Response } from 'express';
 import ms from 'ms';
-import { TokenPayload } from '../../types/token-payload';
+import { TokenPayload } from './types/token-payload';
 import { UsersService } from '../users/users.service';
 
 @Injectable()
@@ -29,6 +29,7 @@ export class AuthService {
 
     const tokenPayload: TokenPayload = {
       userId: user.id,
+      roleId: user.roleId,
     };
     const token = this.jwtService.sign(tokenPayload);
 

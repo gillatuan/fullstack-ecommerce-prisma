@@ -83,7 +83,6 @@ export class PermissionsService {
   async update(
     id: number,
     updatePermissionDto: UpdatePermissionDto,
-    user: UserType,
   ) {
     const result = await this.prismaService.permission.findUniqueOrThrow({
       where: { id },

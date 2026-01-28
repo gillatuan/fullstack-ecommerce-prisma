@@ -10,7 +10,7 @@ import {
   Query,
   Version,
 } from '@nestjs/common';
-import { UserDecorator } from 'decorator/current-user.decorator';
+import { UserDecorator } from 'decorators/current-user.decorator';
 import { Prisma } from 'generated/prisma/client';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { PermissionsService } from './permissions.service';
@@ -46,9 +46,8 @@ export class PermissionsController {
   update(
     @Param('id') id: string,
     @Body() updatePermissionDto: UpdatePermissionDto,
-    @UserDecorator() user: UserType,
   ) {
-    return this.permissionsService.update(+id, updatePermissionDto, user);
+    return this.permissionsService.update(+id, updatePermissionDto);
   }
 
   @Version('1')

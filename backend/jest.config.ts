@@ -11,7 +11,7 @@ const config: Config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^const/(.*)$': '<rootDir>/const/$1',
-    '^decorator/(.*)$': '<rootDir>/decorator/$1',
+    '^decorators/(.*)$': '<rootDir>/decorators/$1',
     '^generated/(.*)$': '<rootDir>/generated/$1',
   },
 

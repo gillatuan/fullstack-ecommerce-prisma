@@ -1,3 +1,5 @@
+import { Permission } from "@/roles/types/roles.type";
+
 export type AuthUser = {
   id: number;
   name: string;
@@ -15,12 +17,7 @@ export enum UserRole {
 
 export interface TokenPayload {
   userId: number;
-  role: UserRole;
-}
-
-export enum Permission {
-  CREATE_POST = 'CREATE_POST',
-  CREATE_COMMENT = 'CREATE_COMMENT',
+  role: UserRole | null;
 }
 export type RoleWithPermissions = {
   id: number;

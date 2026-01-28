@@ -1,25 +1,30 @@
 "use server"
 
-import { post } from "@/common/util/fetch"
-import { SignupFormState } from "@/types/auth"
+import { post } from "common/util/fetch"
+import { SignupFormState } from "types/auth"
 import { redirect } from "next/navigation"
+import { signUpFormSchema } from "schemas/authSchema";
 
 export default async function createUser(
   _prevState: SignupFormState,
   formData: FormData,
 ): Promise<SignupFormState> {
-  const email = formData.get("email") as string
-  const password = formData.get("password") as string
+  const validatedFields = signUpFormSchema.safeParse({
+    email: formData.get('email'),
+    password: formData.get('password'),
+  });
 
-  if (!email) {
-    return { error: { email: "Email is required" } }
+  // Return early if the form data is invalid
+  if (!validatedFields.success) {
+    return {
+      error: {
+        email: validatedFields.error.flatten().fieldErrors.email?.[0] || "",
+        password: validatedFields.error.flatten().fieldErrors.password?.[0] || "",
+      },
+    };
   }
 
-  if (!password) {
-    return { error: { password: "Password is required" } }
-  }
-
-  const res = await post("users", formData)
+  const res = await post("users", validatedFields.data)
   if (res.error) {
     return {
       message: res.error,

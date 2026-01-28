@@ -3,7 +3,7 @@ import { NextRequest } from "next/server"
 import {
   authenticatedRoutes,
   unauthenticatedRoutes,
-} from "@/common/constants/routes"
+} from "common/constants/routes"
 
 export function proxy(request: NextRequest) {
   const auth = request.cookies.get("Authentication")?.value

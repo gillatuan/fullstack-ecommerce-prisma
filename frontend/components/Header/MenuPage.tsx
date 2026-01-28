@@ -1,6 +1,6 @@
 
-import { AuthContext } from "@/app/auth/auth-context";
-import { authenticatedRoutes, unauthenticatedRoutes } from "@/common/constants/routes";
+import { AuthContext } from "@/auth/auth-context";
+import { authenticatedRoutes, unauthenticatedRoutes } from "common/constants/routes";
 import MenuIcon from "@mui/icons-material/Menu";
 import ShoppingBasketIcon from "@mui/icons-material/ShoppingBasket";
 import Box from "@mui/material/Box";

@@ -18,8 +18,26 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": [
+        "./app/*"
+      ],
+      "components/*": [
+        "components/*"
+      ],
+      "styles/*": [
+        "src/styles/*"
+      ],
+      "config/*": [
+        "src/config/*"
+      ],
+      "pages/*": [
+        "src/pages/*"
+      ],
+      "common/*": [
+        "common/*"
+      ]
     }
   },
   "include": [

@@ -1,9 +1,9 @@
 "use server"
 
-import { post } from "@/common/util/fetch"
-import { AUTHENTICATION_COOKIE } from "@/constants/common"
-import { loginFormSchema } from "@/schemas/authSchema"
-import { LoginFormState } from "@/types/auth"
+import { post } from "common/util/fetch"
+import { AUTHENTICATION_COOKIE } from "constants/common"
+import { loginFormSchema } from "schemas/authSchema"
+import { LoginFormState } from "types/auth"
 import { jwtDecode } from "jwt-decode"
 import { cookies } from "next/headers"
 import { redirect } from "next/navigation"

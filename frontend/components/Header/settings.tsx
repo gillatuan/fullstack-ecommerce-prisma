@@ -1,8 +1,8 @@
-import { settings } from "@/constants/menu";
+import { settings } from "constants/menu";
 import { Avatar, Box, IconButton, Menu, MenuItem, Tooltip, Typography } from "@mui/material";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { logout } from "@/app/auth/logout";
+import { logout } from "@/auth/logout";
 
 export const Settings = () => {
   const router = useRouter();

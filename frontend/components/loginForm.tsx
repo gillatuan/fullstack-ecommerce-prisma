@@ -1,7 +1,7 @@
 'use client'
 
-import login from "@/app/auth/login/login";
-import { LoginFormState } from "@/types/auth";
+import login from "@/auth/login/login";
+import { LoginFormState } from "types/auth";
 import { Button, Link, Stack, TextField } from "@mui/material";
 import NextLink from "next/link";
 import { useActionState, useState } from "react";

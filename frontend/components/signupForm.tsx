@@ -1,7 +1,7 @@
 'use client'
 
-import createUser from "@/app/auth/signup/create-user";
-import { SignupFormState } from "@/types/auth";
+import createUser from "@/auth/signup/create-user";
+import { SignupFormState } from "types/auth";
 import { Button, Link, Stack, TextField } from "@mui/material";
 import NextLink from "next/link";
 import { useActionState, useState } from "react";

@@ -1,4 +1,4 @@
-import { AUTHENTICATION_COOKIE } from "@/constants/common";
+import { AUTHENTICATION_COOKIE } from "constants/common";
 import { cookies } from "next/headers";
 
 export default async function authenticated() {

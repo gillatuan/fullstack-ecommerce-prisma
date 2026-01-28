@@ -1,6 +1,6 @@
 "use client";
 
-import { AuthContext } from "@/app/auth/auth-context";
+import { AuthContext } from "@/auth/auth-context";
 import AppBar from "@mui/material/AppBar";
 import Container from "@mui/material/Container";
 import Toolbar from "@mui/material/Toolbar";

@@ -1,7 +1,7 @@
-import { API_URL, API_VERSION } from "@/constants/common";
+import { API_URL, API_VERSION } from "constants/common";
 import { cookies } from "next/headers";
 import { getErrorMessage } from "./errors";
-import { LoginFormSchemaType } from "@/schemas/authSchema";
+import { LoginFormSchemaType } from "schemas/authSchema";
 
 const getHeaders = async () => ({
   Cookie: (await cookies()).toString(),

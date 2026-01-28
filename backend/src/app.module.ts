@@ -7,6 +7,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { LoggerModule } from 'nestjs-pino';
 import { join } from 'path';
+import { RolesModule } from './roles/roles.module';
+import { PermissionsModule } from './permissions/permissions.module';
 
 @Module({
   imports: [
@@ -39,6 +41,8 @@ import { join } from 'path';
     AuthModule,
     PostsModule,
     CommentsModule,
+    RolesModule,
+    PermissionsModule,
   ],
   controllers: [],
   providers: [],

@@ -17,3 +17,13 @@ export interface TokenPayload {
   userId: number;
   role: UserRole;
 }
+
+export enum Permission {
+  CREATE_POST = 'CREATE_POST',
+  CREATE_COMMENT = 'CREATE_COMMENT',
+}
+export type RoleWithPermissions = {
+  id: number;
+  name: string;
+  permissions: Permission[];
+};

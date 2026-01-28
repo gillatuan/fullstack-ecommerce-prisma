@@ -28,14 +28,12 @@ export class PermissionsGuard implements CanActivate {
     const role = await this.prisma.role.findUnique({
       where: { name: user.role },
       include: {
-        permissions: {
-          include: { permission: true },
-        },
+        permissions: true
       },
     });
 
     const userPermissions = role?.permissions.map(
-      (rp) => rp.permission.name,
+      (rp) => rp.name,
     );
 
     return requiredPermissions.every((p) =>

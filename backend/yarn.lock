@@ -3182,6 +3182,11 @@ anymatch@^3.1.3:
     normalize-path "^3.0.0"
     picomatch "^2.0.4"
 
+api-query-params@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/api-query-params/-/api-query-params-6.1.0.tgz#ed2e85d200bed089f5d2a37c4d9752a0f2e55037"
+  integrity sha512-gGUsYpjdwPiF2vwAx7KhP15NNkRrtF129bXPZOnLyHSq91f3Ea2tU4D52g48ZyUaeogu1qLMI+vxN18fL3DhZA==
+
 append-field@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/append-field/-/append-field-1.0.0.tgz#1e3440e915f0b1203d23748e78edd7b9b5b43e56"

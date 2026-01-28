@@ -47,30 +47,24 @@ model Comment {
 }
 
 model Role {
-  id          Int     @id @default(autoincrement())
-  name        String  @unique
-  permissions RolePermission[]
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  users       User[]
 
-  users User[]
+  permissions Permission[]
 }
 
 model Permission {
-  id          Int     @id @default(autoincrement())
-  name        String  @unique
+  id   Int    @id @default(autoincrement())
+  name String @unique
 
-  rolePermissions RolePermission[]
+  apiPath  String
+  method   String
+  module   String
+
+  roleId Int?
+  roles Role? @relation(fields: [roleId], references: [id], onDelete: Cascade)
 }
-
-model RolePermission {
-  roleId        Int
-  permissionId  Int
-
-  role        Role        @relation(fields: [roleId], references: [id])
-  permission  Permission  @relation(fields: [permissionId], references: [id])
-
-  @@id([roleId, permissionId])
-}
-
 
 model User {
   id        Int       @id @default(autoincrement())
@@ -80,8 +74,8 @@ model User {
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
 
-  role     Role?      @relation(fields: [roleId], references: [id])
-  roleId   Int?
+  role     Role      @relation(fields: [roleId], references: [id])
+  roleId   Int
   posts    Post[]
   comments Comment[]
 }

@@ -7,3 +7,13 @@ export type AuthUser = {
   createdAt: Date | null;
   updatedAt: Date | null;
 };
+
+export enum UserRole {
+  USER = 2,
+  ADMIN = 1,
+}
+
+export interface TokenPayload {
+  userId: number;
+  role: UserRole;
+}

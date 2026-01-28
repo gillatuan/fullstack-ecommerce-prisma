@@ -6,6 +6,9 @@ export class CreateUserRequest {
 
   @IsStrongPassword()
   password: string;
+
+  @IsOptional()
+  roleId?: number = 2;
 }
 export class CreateNewsletterRequest {
   @IsEmail()

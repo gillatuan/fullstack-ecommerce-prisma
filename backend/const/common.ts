@@ -1,5 +1,4 @@
-import { AuthUser } from '@/auth/types/auth';
-import { TokenPayload } from "@/auth/types/token-payload";
+import { AuthUser, TokenPayload } from '@/auth/types/auth.type';
 
 export const JWT_AUTHENTICATION =
   process.env.JWT_AUTHENTICATION || 'Authentication';
@@ -18,5 +17,5 @@ export const mockUser: AuthUser = {
 
 export const tokenPayload: TokenPayload = {
   userId: mockUser.id,
-  roleId: mockUser.roleId,
+  role: mockUser.roleId,
 };

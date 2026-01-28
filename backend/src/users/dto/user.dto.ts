@@ -5,8 +5,11 @@ export class UserResponse {
 	email: string;
 
 	@IsOptional()
-	createdAt?: Date;
+	roleId?: number;
 
 	@IsOptional()
-	updatedAt?: Date
+	createdAt?: Date | null;
+
+	@IsOptional()
+	updatedAt?: Date | null;
 }

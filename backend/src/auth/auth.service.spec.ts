@@ -82,7 +82,7 @@ describe('AuthService', () => {
 
       // 👉 ASSERT return value
       expect(result).toEqual({
-        tokenPayload: { userId: mockUser.id, roleId: mockUser.roleId },
+        tokenPayload: { userId: mockUser.id, role: mockUser.roleId },
       });
     });
   });

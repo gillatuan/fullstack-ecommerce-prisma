@@ -1,7 +1,8 @@
-import { UserWhereUniqueInput } from 'generated/prisma/models';
-import { PrismaService } from '../prisma/prisma.service';
+import { UserRole } from '@/auth/types/auth.type';
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { UserWhereUniqueInput } from 'generated/prisma/models';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateUserRequest } from './dto/create-user.dto';
 import { UserResponse } from './dto/user.dto';
 
@@ -15,10 +16,12 @@ export class UsersService {
         data: {
           ...data,
           password: await bcrypt.hash(data.password, 10),
+          roleId: data.roleId ?? UserRole.USER,
         },
         select: {
           email: true,
           name: true,
+          roleId: true,
         },
       });
     } catch (err) {

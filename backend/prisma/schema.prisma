@@ -13,7 +13,7 @@ generator client {
 
   // generate imports with no extension by setting importFileExtension to an empty string
   // https://github.com/prisma/prisma/issues/28335
-  importFileExtension = "" 
+  importFileExtension = ""
 }
 
 datasource db {
@@ -47,13 +47,30 @@ model Comment {
 }
 
 model Role {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  permissions RolePermission[]
 
-  users     User[]
+  users User[]
 }
+
+model Permission {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+
+  rolePermissions RolePermission[]
+}
+
+model RolePermission {
+  roleId        Int
+  permissionId  Int
+
+  role        Role        @relation(fields: [roleId], references: [id])
+  permission  Permission  @relation(fields: [permissionId], references: [id])
+
+  @@id([roleId, permissionId])
+}
+
 
 model User {
   id        Int       @id @default(autoincrement())
@@ -62,9 +79,9 @@ model User {
   name      String?
   createdAt DateTime? @default(now())
   updatedAt DateTime? @updatedAt
-  
-  roleId    Int       
-  role      Role      @relation(fields: [roleId], references: [id])
+
+  role     Role?      @relation(fields: [roleId], references: [id])
+  roleId   Int?
   posts    Post[]
   comments Comment[]
 }

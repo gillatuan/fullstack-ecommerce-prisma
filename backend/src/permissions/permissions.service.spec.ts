@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../prisma/prisma.service';
 import { PermissionsService } from './permissions.service';
+import aqp from "api-query-params";
 
 jest.mock('api-query-params', () => ({
   __esModule: true,
@@ -20,7 +21,11 @@ const prismaMock = {
 describe('PermissionsService', () => {
   let service: PermissionsService;
   let prismaService: jest.Mocked<PrismaService>;
-  let prisma: typeof prismaMock;
+
+  // Arrange
+  const currentPage = 1;
+  const limit = 10;
+  const qs = '?filter[name]=CREATE_POST&sort=-createdAt';
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -42,31 +47,33 @@ describe('PermissionsService', () => {
   });
 
   it('should return paginated permissions list', async () => {
-    // Arrange
+    (aqp as jest.Mock).mockReturnValue({
+      filter: { name: 'CREATE_POST' },
+      sort: { createdAt: 'desc' },
+      population: undefined,
+      projection: undefined,
+    });
+    
     const mockPermissions = [
       {
         id: 1,
         name: 'CREATE_POST',
-        module: 'POSTS',
-        apiPath: '/posts',
-        method: 'POST',
+        createdAt: new Date(),
       },
       {
         id: 2,
-        name: 'EDIT_POST',
-        module: 'POSTS',
-        apiPath: '/posts/:id',
-        method: 'PATCH',
+        name: 'CREATE_COMMENT',
+        createdAt: new Date(),
       },
     ];
-
-    // Act
-    const result = await service.findAll(1, 10, '?filter[name]=CREATE_POST&sort=-createdAt');
 
     (prismaService.permission.count as jest.Mock).mockResolvedValue(2);
     (prismaService.permission.findMany as jest.Mock).mockResolvedValue(
       mockPermissions,
     );
+
+    // Act
+    const result = await service.findAll(currentPage, limit, qs);
 
     // Assert
     expect(prismaService.permission.count).toHaveBeenCalledWith({

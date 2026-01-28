@@ -20,7 +20,6 @@ const prismaMock = {
 describe('PermissionsService', () => {
   let service: PermissionsService;
   let prismaService: jest.Mocked<PrismaService>;
-  let prisma: typeof prismaMock;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -61,7 +60,11 @@ describe('PermissionsService', () => {
     ];
 
     // Act
-    const result = await service.findAll(1, 10, '?filter[name]=CREATE_POST&sort=-createdAt');
+    const result = await service.findAll(
+      1,
+      10,
+      '?filter[name]=CREATE_POST&sort=-createdAt',
+    );
 
     (prismaService.permission.count as jest.Mock).mockResolvedValue(2);
     (prismaService.permission.findMany as jest.Mock).mockResolvedValue(

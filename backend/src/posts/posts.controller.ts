@@ -8,13 +8,12 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { UpdatePostDto } from './dto/update-post.dto';
 import { PostsService } from './posts.service';
-import { Permission } from "@/auth/types/auth.type";
 import { JwtAuthGuard } from "@/auth/guards/jwt-auth.guard";
 import { PermissionsGuard } from "@/auth/guards/permission.guard";
 import { Permissions } from "decorator/permissions.decorator";
-import { CreatePostDto } from "./dto/create-post.dto";
+import { Permission } from "@/roles/types/roles.type";
+import { Prisma } from "generated/prisma/client";
 
 @Controller('posts')
 export class PostsController {
@@ -23,7 +22,7 @@ export class PostsController {
   @UseGuards(JwtAuthGuard, PermissionsGuard)
   @Post()
   @Permissions(Permission.CREATE_POST)
-  createPost(@Body() createPostDto: CreatePostDto) {
+  createPost(@Body() createPostDto: Prisma.PostCreateInput) {
     return this.postsService.create(createPostDto);
   }
 
@@ -38,7 +37,7 @@ export class PostsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
+  update(@Param('id') id: string, @Body() updatePostDto: Prisma.PostUpdateInput) {
     return this.postsService.update(+id, updatePostDto);
   }
 

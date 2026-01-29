@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Prisma } from 'generated/prisma/client';
-import { CreatePermissionDto } from './dto/create-permission.dto';
 import { PermissionsController } from './permissions.controller';
 import { PermissionsService } from './permissions.service';
 
@@ -22,7 +21,7 @@ describe('PermissionsController', () => {
   };
 
   // ---------- ARRANGE ----------
-  const dto: CreatePermissionDto = {
+  const dto: Prisma.PermissionCreateInput = {
     name: 'CREATE_USER',
     apiPath: '/users',
     method: 'POST',

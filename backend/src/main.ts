@@ -15,6 +15,7 @@ async function bootstrap() {
   app.enableVersioning({
     type: VersioningType.URI,
     prefix: 'api/v',
+    defaultVersion: '1',
   });
 
   await app.listen(app.get(ConfigService).getOrThrow('PORT') ?? 3001);

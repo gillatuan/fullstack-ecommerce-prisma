@@ -8,7 +8,7 @@ export class CreateUserRequest {
   password: string;
 
   @IsOptional()
-  roleId?: number = 2;
+  roleId: number | null;
 }
 export class CreateNewsletterRequest {
   @IsEmail()

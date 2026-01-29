@@ -7,7 +7,7 @@ import {
   JWT_EXPIRATION,
   JWT_SECRET,
   mockUser,
-} from 'const/common';
+} from 'const/mock/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { UsersService } from '../users/users.service';
 import { AuthService } from './auth.service';

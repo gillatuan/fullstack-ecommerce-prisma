@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { mockUser, tokenPayload } from 'const/common';
+import { mockUser, tokenPayload } from 'const/mock/common';
 import { Response } from 'express';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';

@@ -9,6 +9,8 @@ import { LoggerModule } from 'nestjs-pino';
 import { join } from 'path';
 import { RolesModule } from './roles/roles.module';
 import { PermissionsModule } from './permissions/permissions.module';
+import { APP_FILTER } from "@nestjs/core";
+import { GlobalExceptionFilter } from "exception-filters/global-exception.filter";
 
 @Module({
   imports: [
@@ -45,6 +47,9 @@ import { PermissionsModule } from './permissions/permissions.module';
     PermissionsModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [{
+    provide: APP_FILTER,
+    useClass: GlobalExceptionFilter
+  }],
 })
 export class AppModule {}

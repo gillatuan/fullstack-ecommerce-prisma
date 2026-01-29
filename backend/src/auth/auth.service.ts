@@ -1,12 +1,17 @@
-import { User } from 'generated/prisma/client';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { ERRORS_DICTIONARY } from 'const/constraint/error-dictionary';
 import { Response } from 'express';
+import { User } from 'generated/prisma/client';
 import ms from 'ms';
 import { UsersService } from '../users/users.service';
-import { TokenPayload } from "./types/auth.type";
+import { TokenPayload } from './types/auth.type';
 
 @Injectable()
 export class AuthService {
@@ -47,17 +52,26 @@ export class AuthService {
       // if not found, throw UnauthorizedException
       const user = await this.usersService.getUser({ email });
       if (!user) {
-        throw new UnauthorizedException('Email not found.');
+        throw new UnauthorizedException({
+          message: ERRORS_DICTIONARY.EMAIL_NOT_EXISTED,
+          details: 'Email does not exist.',
+        });
       }
 
       // verify password
       const authenticated = await bcrypt.compare(password, user.password);
       if (!authenticated) {
-        throw new UnauthorizedException();
+        throw new BadRequestException({
+          message: ERRORS_DICTIONARY.WRONG_CREDENTIALS,
+          details: 'Wrong credentials provided.',
+        });
       }
       return user;
     } catch (err) {
-      throw new UnauthorizedException('Credentials are not valid.');
+      throw new BadRequestException({
+        message: ERRORS_DICTIONARY.WRONG_CREDENTIALS,
+        details: 'Wrong credentials provided.',
+      });
     }
   }
 }

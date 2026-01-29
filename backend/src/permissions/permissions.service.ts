@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import aqp from 'api-query-params';
 import { Prisma } from 'generated/prisma/client';
-import { UpdatePermissionDto } from './dto/update-permission.dto';
 
 @Injectable()
 export class PermissionsService {
@@ -82,7 +81,7 @@ export class PermissionsService {
 
   async update(
     id: number,
-    updatePermissionDto: UpdatePermissionDto,
+    updatePermissionDto: Prisma.PermissionUpdateInput,
   ) {
     const result = await this.prismaService.permission.findUniqueOrThrow({
       where: { id },
@@ -97,9 +96,9 @@ export class PermissionsService {
         where: { id },
         data: {
           ...updatePermissionDto,
-          name: updatePermissionDto.name?.toUpperCase(),
-          module: updatePermissionDto.module?.toUpperCase(),
-          method: updatePermissionDto.method?.toUpperCase(),
+          name: updatePermissionDto.name?.toString().toUpperCase(),
+          module: updatePermissionDto.module?.toString().toUpperCase(),
+          method: updatePermissionDto.method?.toString().toUpperCase(),
         },
         select: {
           name: true,

@@ -16,7 +16,7 @@ export class UsersService {
         data: {
           ...data,
           password: await bcrypt.hash(data.password, 10),
-          roleId: data.roleId ?? UserRole.USER,
+          roleId: data.roleId as number,
         },
         select: {
           email: true,

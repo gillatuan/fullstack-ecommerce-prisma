@@ -33,11 +33,11 @@ export class PermissionsGuard implements CanActivate {
     });
 
     const userPermissions = role?.permissions.map(
-      (rp) => rp.name,
+      (rp) => rp.permissionId,
     );
 
     return requiredPermissions.every((p) =>
-      userPermissions?.includes(p),
+      userPermissions?.includes(+p),
     );
   }
 }

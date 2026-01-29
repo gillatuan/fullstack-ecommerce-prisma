@@ -10,14 +10,18 @@ export type AuthUser = {
   updatedAt: Date | null;
 };
 
-export enum UserRole {
-  USER = 2,
-  ADMIN = 1,
+export enum RoleType {
+  SUPER_ADMIN,
+  ADMIN,
+  MEMBER
 }
 
 export interface TokenPayload {
-  userId: number;
-  role: UserRole | null;
+  sub: string;
+  email: string;
+  permissions: string[];
+  userId: string;
+  role: string | null;
 }
 export type RoleWithPermissions = {
   id: number;

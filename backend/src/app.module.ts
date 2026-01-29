@@ -2,15 +2,17 @@ import { AuthModule } from '@/auth/auth.module';
 import { CommentsModule } from '@/comments/comments.module';
 import { PostsModule } from '@/posts/posts.module';
 import { UsersModule } from '@/users/users.module';
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { exec } from 'child_process';
+import { GlobalExceptionFilter } from 'exception-filters/global-exception.filter';
 import { LoggerModule } from 'nestjs-pino';
 import { join } from 'path';
-import { RolesModule } from './roles/roles.module';
+import { PermissionsGuard } from 'rbac/permission.guard';
 import { PermissionsModule } from './permissions/permissions.module';
-import { APP_FILTER } from "@nestjs/core";
-import { GlobalExceptionFilter } from "exception-filters/global-exception.filter";
+import { RolesModule } from './roles/roles.module';
 
 @Module({
   imports: [
@@ -47,9 +49,23 @@ import { GlobalExceptionFilter } from "exception-filters/global-exception.filter
     PermissionsModule,
   ],
   controllers: [],
-  providers: [{
-    provide: APP_FILTER,
-    useClass: GlobalExceptionFilter
-  }],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: GlobalExceptionFilter,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: PermissionsGuard,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit {
+  async onModuleInit() {
+    if (process.env.NODE_ENV !== 'production') {
+      exec('npx prisma db seed', (err) => {
+        if (err) console.error('Seed error', err);
+      });
+    }
+  }
+}

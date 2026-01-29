@@ -1,3 +1,5 @@
+import { PrismaService } from '@/prisma/prisma.service';
+import { UserGetPayload } from '@/users/types/user.type';
 import {
   BadRequestException,
   Injectable,
@@ -8,7 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { ERRORS_DICTIONARY } from 'const/constraint/error-dictionary';
 import { Response } from 'express';
-import { User } from 'generated/prisma/client';
+import { RoleType } from 'generated/prisma/client';
 import ms from 'ms';
 import { UsersService } from '../users/users.service';
 import { TokenPayload } from './types/auth.type';
@@ -21,7 +23,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(user: User, response: Response) {
+  async login(user: UserGetPayload, response: Response) {
     const expires = new Date();
     expires.setMilliseconds(
       expires.getMilliseconds() +
@@ -32,10 +34,24 @@ export class AuthService {
         ),
     );
 
+    // Get user permissions
+    const permissions = user.roles.flatMap((userRole) =>
+      userRole.role.permissions.map(
+        (rolePermission) =>
+          `${rolePermission.permission.resource}:${rolePermission.permission.action}`,
+      ),
+    );
+    const role: RoleType | null =
+      user.roles.length > 0 ? (user.roles[0].role.name as RoleType) : null;
+
     const tokenPayload: TokenPayload = {
+      sub: user.id,
+      email: user.email,
+      permissions,
       userId: user.id,
-      role: user.roleId,
+      role,
     };
+
     const token = this.jwtService.sign(tokenPayload);
 
     response.cookie('Authentication', token, {
@@ -66,6 +82,7 @@ export class AuthService {
           details: 'Wrong credentials provided.',
         });
       }
+
       return user;
     } catch (err) {
       throw new BadRequestException({

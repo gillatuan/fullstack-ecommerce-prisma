@@ -20,101 +20,54 @@ datasource db {
   provider = "postgresql"
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  published Boolean  @default(false)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  comments Comment[]
-
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
+enum RoleType {
+  SUPER_ADMIN
+  ADMIN
+  MEMBER
 }
 
-model Comment {
-  id        Int      @id @default(autoincrement())
-  text      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  userId Int
-  user   User @relation(fields: [userId], references: [id])
-  postId Int
-  post   Post @relation(fields: [postId], references: [id])
+model User {
+  id        String     @id @default(uuid())
+  fullName  String?
+  email     String     @unique
+  password  String
+  roles     UserRole[]
+  createdAt DateTime   @default(now())
 }
 
 model Role {
-  id          Int          @id @default(autoincrement())
-  name        String       @unique
-  
+  id          String           @id @default(uuid())
+  name        String           @unique
+  description String?
   permissions RolePermission[]
-
-  userRoles UserRole[]
+  users       UserRole[]
 }
 
 model Permission {
-  id   Int    @id @default(autoincrement())
-  name String @unique
+  id       String           @id @default(uuid())
+  action   String
+  resource String
+  roles    RolePermission[]
 
-  apiPath  String
-  method   String
-  module   String
-
-  roles  RolePermission[]
-}
-
-model RolePermission {
-  role       Role       @relation(fields: [roleId], references: [id])
-  roleId     Int // relation scalar field (used in the `@relation` attribute above)
-  permission Permission @relation(fields: [permissionId], references: [id])
-  permissionId Int // relation scalar field (used in the `@relation` attribute above)
-
-  @@id([roleId, permissionId])
+  @@unique([action, resource])
 }
 
 model UserRole {
+  userId String
+  roleId String
+
   user User @relation(fields: [userId], references: [id])
-  userId Int // relation scalar field (used in the `@relation` attribute above)
   role Role @relation(fields: [roleId], references: [id])
-  roleId Int // relation scalar field (used in the `@relation` attribute above)
 
   @@id([userId, roleId])
 }
 
-model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  password  String
-  name      String?
-  createdAt DateTime? @default(now())
-  updatedAt DateTime? @updatedAt
+model RolePermission {
+  roleId       String
+  permissionId String
 
-  posts    Post[]
-  comments Comment[]
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
 
-  roles UserRole[]
+  @@id([roleId, permissionId])
 }
-
-/**
- * model UsersLetter {
- * id        Int      @id @default(autoincrement())
- * email     String   @unique
- * fullName  String?
- * createdAt DateTime @default(now())
- * updatedAt DateTime @updatedAt
- * }
- * model Event {
- * id          Int      @id @default(autoincrement())
- * title       String
- * description String
- * date        DateTime
- * location    String
- * image       String
- * createdAt   DateTime @default(now())
- * updatedAt   DateTime @updatedAt
- * // comments    Comment[]
- * }
- */

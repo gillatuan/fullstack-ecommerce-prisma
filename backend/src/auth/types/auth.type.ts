@@ -1,19 +1,19 @@
 import { Permission } from "@/roles/types/roles.type";
 
 export type AuthUser = {
-  id: number;
+  id: string;
   name: string;
   email: string;
   password: string;
-  roleId: number;
+  role: RoleType;
   createdAt: Date | null;
   updatedAt: Date | null;
 };
 
 export enum RoleType {
-  SUPER_ADMIN,
-  ADMIN,
-  MEMBER
+  SUPER_ADMIN = "SUPER_ADMIN",
+  ADMIN = "ADMIN",
+  MEMBER = "MEMBER"
 }
 
 export interface TokenPayload {

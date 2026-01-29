@@ -1,6 +1,4 @@
 import { AuthModule } from '@/auth/auth.module';
-import { CommentsModule } from '@/comments/comments.module';
-import { PostsModule } from '@/posts/posts.module';
 import { UsersModule } from '@/users/users.module';
 import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -43,8 +41,6 @@ import { RolesModule } from './roles/roles.module';
     ConfigModule.forRoot(),
     UsersModule,
     AuthModule,
-    PostsModule,
-    CommentsModule,
     RolesModule,
     PermissionsModule,
   ],

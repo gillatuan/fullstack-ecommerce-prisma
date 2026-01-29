@@ -1,5 +1,4 @@
 import { PrismaService } from '@/prisma/prisma.service';
-import type { UserType } from '@/users/types/user.type';
 import {
   BadRequestException,
   Injectable,
@@ -17,15 +16,13 @@ export class PermissionsService {
       return await this.prismaService.permission.create({
         data: {
           ...createPermissionDto,
-          name: createPermissionDto.name.toUpperCase(),
-          module: createPermissionDto.module.toUpperCase(),
-          method: createPermissionDto.method.toUpperCase(),
+          action: createPermissionDto.action.toUpperCase(),
+          resource: createPermissionDto.resource.toUpperCase(),
         },
         select: {
-          name: true,
-          module: true,
-          apiPath: true,
-          method: true,
+          action: true,
+          resource: true,
+          roles: true
         },
       });
     } catch (err) {
@@ -69,7 +66,7 @@ export class PermissionsService {
     };
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     try {
       return await this.prismaService.permission.findUniqueOrThrow({
         where: { id },
@@ -79,10 +76,7 @@ export class PermissionsService {
     }
   }
 
-  async update(
-    id: number,
-    updatePermissionDto: Prisma.PermissionUpdateInput,
-  ) {
+  async update(id: string, updatePermissionDto: Prisma.PermissionUpdateInput) {
     const result = await this.prismaService.permission.findUniqueOrThrow({
       where: { id },
     });
@@ -96,15 +90,14 @@ export class PermissionsService {
         where: { id },
         data: {
           ...updatePermissionDto,
-          name: updatePermissionDto.name?.toString().toUpperCase(),
-          module: updatePermissionDto.module?.toString().toUpperCase(),
-          method: updatePermissionDto.method?.toString().toUpperCase(),
+          action: updatePermissionDto.action?.toString().toUpperCase(),
+          resource: updatePermissionDto.resource?.toString().toUpperCase(),
+          roles: updatePermissionDto.roles
         },
         select: {
-          name: true,
-          module: true,
-          apiPath: true,
-          method: true,
+          action: true,
+          resource: true,
+          roles: true
         },
       });
     } catch (error) {
@@ -112,7 +105,7 @@ export class PermissionsService {
     }
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     try {
       return await this.prismaService.permission.delete({
         where: { id },

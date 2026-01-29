@@ -1,27 +1,27 @@
-import { UserRole } from '@/auth/types/auth.type';
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UserWhereUniqueInput } from 'generated/prisma/models';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateUserRequest } from './dto/create-user.dto';
-import { UserResponse } from './dto/user.dto';
+import { UserCreateInput } from './types/user.type';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async createUser(data: CreateUserRequest): Promise<UserResponse> {
+  async createUser(data: UserCreateInput) {
     try {
       return await this.prismaService.user.create({
         data: {
           ...data,
           password: await bcrypt.hash(data.password, 10),
-          roleId: data.roleId as number,
         },
         select: {
           email: true,
-          name: true,
-          roleId: true,
+          roles: {
+            select: {
+              roleId: true,
+            },
+          },
         },
       });
     } catch (err) {
@@ -35,6 +35,21 @@ export class UsersService {
   async getUser(filter: UserWhereUniqueInput) {
     return await this.prismaService.user.findUnique({
       where: filter,
+      include: {
+        roles: {
+          include: {
+            role: {
+              include: {
+                permissions: {
+                  include: {
+                    permission: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     });
   }
 }

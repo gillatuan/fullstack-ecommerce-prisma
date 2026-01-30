@@ -55,42 +55,35 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<AuthLoginResponse> {
-    try {
-      // if not found, throw UnauthorizedException
-      const user = await this.usersService.getUser({ email });
-      if (!user) {
-        throw new UnauthorizedException({
-          message: ERRORS_DICTIONARY.EMAIL_NOT_EXISTED,
-          details: 'Email does not exist.',
-        });
-      }
+    // if not found, throw UnauthorizedException
+    const user = await this.usersService.getUser({ email });
+    if (!user) {
+      throw new UnauthorizedException({
+        message: ERRORS_DICTIONARY.EMAIL_NOT_EXISTED,
+        details: 'Email does not exist.',
+      });
+    }
 
-      // verify password
-      const authenticated = await argon2.verify(user.password, password);
-      if (!authenticated) {
-        throw new BadRequestException({
-          message: ERRORS_DICTIONARY.WRONG_CREDENTIALS,
-          details: 'Wrong credentials provided.',
-        });
-      }
-
-      // Get user Role
-      const role = user.roles[0].role.name as RoleType;
-
-      // Get user permissions
-      const permissions = user.roles?.flatMap((userRole) =>
-        userRole.role.permissions.map(
-          (rolePermission) =>
-            `${rolePermission.permission.resource}:${rolePermission.permission.action}`,
-        ),
-      );
-
-      return { ...user, role, permissions };
-    } catch (err) {
+    // verify password
+    const authenticated = await argon2.verify(user.password, password);
+    if (!authenticated) {
       throw new BadRequestException({
         message: ERRORS_DICTIONARY.WRONG_CREDENTIALS,
         details: 'Wrong credentials provided.',
       });
     }
+
+    // Get user Role
+    const role = user.roles[0].role.name as RoleType;
+
+    // Get user permissions
+    const permissions = user.roles?.flatMap((userRole) =>
+      userRole.role.permissions.map(
+        (rolePermission) =>
+          `${rolePermission.permission.resource}:${rolePermission.permission.action}`,
+      ),
+    );
+
+    return { ...user, role, permissions };
   }
 }

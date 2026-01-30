@@ -107,7 +107,7 @@ async function seedSuperAdmin() {
 
   const email = process.env.SUPER_ADMIN_EMAIL || 'super_admin@gmail.com';
   const hashedPassword = await argon2.hash(
-    process.env.SUPER_ADMIN_PASSWORD || 'Admin@3010',
+    process.env.SUPER_ADMIN_PASSWORD || 'hashedpassword',
   );
 
   await prisma.user.create({
@@ -124,12 +124,86 @@ async function seedSuperAdmin() {
   });
 }
 
+async function seedAdmin() {
+  const email = 'admin_for_test@gmail.com';
+  const adminRole = await prisma.role.findUnique({
+    where: { name: ROLES.ADMIN },
+  });
+
+  if (!adminRole) {
+    console.error('Super Admin role not found');
+    return;
+  }
+
+  const existingUser = await prisma.user.findUnique({
+    where: { email }, // for test
+  });
+
+  if (existingUser) {
+    console.log('Admin user already exists');
+    return;
+  }
+
+  const hashedPassword = await argon2.hash('hashedpassword');
+
+  await prisma.user.create({
+    data: {
+      fullName: 'Admin',
+      email,
+      password: hashedPassword,
+      roles: {
+        create: {
+          roleId: adminRole.id,
+        },
+      },
+    },
+  });
+}
+
+async function seedMember() {
+  const email = 'member_for_test@gmail.com'
+  const memberRole = await prisma.role.findUnique({
+    where: { name: ROLES.MEMBER },
+  });
+
+  if (!memberRole) {
+    console.error('Member role not found');
+    return;
+  }
+
+  const existingUser = await prisma.user.findUnique({
+    where: { email }, // for test
+  });
+
+  if (existingUser) {
+    console.log('Member user already exists');
+    return;
+  }
+
+  const hashedPassword = await argon2.hash('hashedpassword');
+
+  await prisma.user.create({
+    data: {
+      fullName: 'Member',
+      email,
+      password: hashedPassword,
+      roles: {
+        create: {
+          roleId: memberRole.id,
+        },
+      },
+    },
+  });
+}
+
 async function main() {
   console.log('🌱 Seeding RBAC...');
   await seedRoles();
   await seedPermissions();
   await seedRolePermissions();
   await seedSuperAdmin();
+  await seedAdmin();
+  await seedMember();
 
   console.log('✅ RBAC seeded successfully');
 }

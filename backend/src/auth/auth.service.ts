@@ -1,5 +1,3 @@
-import { PrismaService } from '@/prisma/prisma.service';
-import { UserGetPayload } from '@/users/types/user.type';
 import {
   BadRequestException,
   Injectable,
@@ -7,13 +5,13 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import * as bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
 import { ERRORS_DICTIONARY } from 'const/constraint/error-dictionary';
 import { Response } from 'express';
 import { RoleType } from 'generated/prisma/client';
 import ms from 'ms';
 import { UsersService } from '../users/users.service';
-import { TokenPayload } from './types/auth.type';
+import { AuthLoginResponse, TokenPayload } from './types/auth.type';
 
 @Injectable()
 export class AuthService {
@@ -23,7 +21,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(user: UserGetPayload, response: Response) {
+  async login(user: AuthLoginResponse, response: Response) {
     const expires = new Date();
     expires.setMilliseconds(
       expires.getMilliseconds() +
@@ -34,22 +32,12 @@ export class AuthService {
         ),
     );
 
-    // Get user permissions
-    const permissions = user.roles.flatMap((userRole) =>
-      userRole.role.permissions.map(
-        (rolePermission) =>
-          `${rolePermission.permission.resource}:${rolePermission.permission.action}`,
-      ),
-    );
-    const role: RoleType | null =
-      user.roles.length > 0 ? (user.roles[0].role.name as RoleType) : null;
-
     const tokenPayload: TokenPayload = {
       sub: user.id,
       email: user.email,
-      permissions,
+      permissions: user.permissions,
       userId: user.id,
-      role,
+      role: user.role,
     };
 
     const token = this.jwtService.sign(tokenPayload);
@@ -63,7 +51,10 @@ export class AuthService {
     return { tokenPayload };
   }
 
-  async verifyUser(email: string, password: string) {
+  async verifyUser(
+    email: string,
+    password: string,
+  ): Promise<AuthLoginResponse> {
     try {
       // if not found, throw UnauthorizedException
       const user = await this.usersService.getUser({ email });
@@ -75,7 +66,7 @@ export class AuthService {
       }
 
       // verify password
-      const authenticated = await bcrypt.compare(password, user.password);
+      const authenticated = await argon2.verify(user.password, password);
       if (!authenticated) {
         throw new BadRequestException({
           message: ERRORS_DICTIONARY.WRONG_CREDENTIALS,
@@ -83,7 +74,18 @@ export class AuthService {
         });
       }
 
-      return user;
+      // Get user Role
+      const role = user.roles[0].role.name as RoleType;
+
+      // Get user permissions
+      const permissions = user.roles?.flatMap((userRole) =>
+        userRole.role.permissions.map(
+          (rolePermission) =>
+            `${rolePermission.permission.resource}:${rolePermission.permission.action}`,
+        ),
+      );
+
+      return { ...user, role, permissions };
     } catch (err) {
       throw new BadRequestException({
         message: ERRORS_DICTIONARY.WRONG_CREDENTIALS,

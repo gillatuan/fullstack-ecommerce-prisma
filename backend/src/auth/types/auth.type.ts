@@ -1,20 +1,16 @@
-import { Permission } from "@/roles/types/roles.type";
+import { Permission } from '@/roles/types/roles.type';
+import { UserGetPayload } from '@/users/types/user.type';
+import { RoleType } from 'generated/prisma/client';
 
 export type AuthUser = {
   id: string;
   name: string;
   email: string;
   password: string;
-  role: RoleType;
+  role: RoleType | null;
   createdAt: Date | null;
   updatedAt: Date | null;
 };
-
-export enum RoleType {
-  SUPER_ADMIN = "SUPER_ADMIN",
-  ADMIN = "ADMIN",
-  MEMBER = "MEMBER"
-}
 
 export interface TokenPayload {
   sub: string;
@@ -28,3 +24,13 @@ export type RoleWithPermissions = {
   name: string;
   permissions: Permission[];
 };
+
+export type AuthLoginRequest = {
+  email: string;
+  password: string;
+};
+
+export interface AuthLoginResponse extends UserGetPayload {
+  role: RoleType;
+  permissions: string[] | [];
+}

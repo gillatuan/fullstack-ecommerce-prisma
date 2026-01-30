@@ -1,5 +1,5 @@
 import { Injectable, UnprocessableEntityException } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
+import * as argon2 from 'argon2';
 import { UserWhereUniqueInput } from 'generated/prisma/models';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserCreateInput } from './types/user.type';
@@ -13,7 +13,7 @@ export class UsersService {
       return await this.prismaService.user.create({
         data: {
           ...data,
-          password: await bcrypt.hash(data.password, 10),
+          password: await argon2.hash(data.password),
         },
         select: {
           email: true,

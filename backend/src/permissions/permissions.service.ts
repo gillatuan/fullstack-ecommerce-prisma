@@ -2,9 +2,11 @@ import { PrismaService } from '@/prisma/prisma.service';
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   UnprocessableEntityException,
 } from '@nestjs/common';
 import aqp from 'api-query-params';
+import { ERRORS_DICTIONARY } from 'const/constraint/error-dictionary';
 import { Prisma } from 'generated/prisma/client';
 
 @Injectable()
@@ -22,12 +24,15 @@ export class PermissionsService {
         select: {
           action: true,
           resource: true,
-          roles: true
+          roles: true,
         },
       });
     } catch (err) {
       if (err.code === 'P2002') {
-        throw new UnprocessableEntityException('Name & Module already exists.');
+        throw new UnprocessableEntityException({
+          message: ERRORS_DICTIONARY.ITEM_DUPLICATED,
+          details: 'Name & Module already exists.',
+        });
       }
       throw err;
     }
@@ -72,7 +77,10 @@ export class PermissionsService {
         where: { id },
       });
     } catch (error) {
-      throw new BadRequestException('Permission not found');
+      throw new BadRequestException({
+        message: ERRORS_DICTIONARY.ROLE_NOT_FOUND,
+        details: 'Permission not found.',
+      });
     }
   }
 
@@ -82,7 +90,10 @@ export class PermissionsService {
     });
 
     if (!result) {
-      throw new BadRequestException('Permission not found');
+      throw new BadRequestException({
+        message: ERRORS_DICTIONARY.ROLE_NOT_FOUND,
+        details: 'Permission not found.',
+      });
     }
 
     try {
@@ -92,26 +103,59 @@ export class PermissionsService {
           ...updatePermissionDto,
           action: updatePermissionDto.action?.toString().toUpperCase(),
           resource: updatePermissionDto.resource?.toString().toUpperCase(),
-          roles: updatePermissionDto.roles
+          roles: updatePermissionDto.roles,
         },
         select: {
           action: true,
           resource: true,
-          roles: true
+          roles: true,
         },
       });
     } catch (error) {
-      throw new BadRequestException('Failed to update permission');
+      throw new BadRequestException({
+        message: ERRORS_DICTIONARY.FAILED_TO_UPDATE,
+        details: 'Failed to update Role.',
+      });
     }
   }
 
   async remove(id: string) {
-    try {
-      return await this.prismaService.permission.delete({
+    // 1. Check tồn tại
+    const permission = await this.prismaService.permission.findUnique({
+      where: { id },
+    });
+
+    if (!permission) {
+      throw new NotFoundException({
+        message: ERRORS_DICTIONARY.ROLE_NOT_FOUND,
+        details: 'Permission not found.',
+      });
+    }
+
+    // 2. Không cho xóa các permission hệ thống (tuỳ anh cấu hình)
+    const SYSTEM_PERMISSIONS = ['user:read', 'user:write', 'role:manage'];
+
+    const key = `${permission.action}:${permission.resource}`;
+    if (SYSTEM_PERMISSIONS.includes(key)) {
+      throw new NotFoundException({
+        message: ERRORS_DICTIONARY.ROLE_NOT_FOUND,
+        details: 'Cannot delete system permission.',
+      });
+    }
+
+    // 3. Transaction delete
+    return this.prismaService.$transaction(async (tx) => {
+      // 👉 QUAN TRỌNG: xoá bảng trung gian trước
+      await tx.rolePermission.deleteMany({
+        where: {
+          permissionId: id,
+        },
+      });
+
+      // 👉 Sau đó mới xoá permission
+      return tx.permission.delete({
         where: { id },
       });
-    } catch (error) {
-      throw new BadRequestException('Permission not found');
-    }
+    });
   }
 }

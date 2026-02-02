@@ -1,15 +1,32 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { ERRORS_DICTIONARY } from 'const/constraint/error-dictionary';
 import { PERMISSIONS_KEY } from 'decorator/permissions.decorator';
 
 @Injectable()
-export class PermissionsGuard implements CanActivate {
+export class PermissionGuard implements CanActivate {
+  constructor(private reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const requiredPermissions =
+      this.reflector.get<string[]>(PERMISSIONS_KEY, context.getHandler()) || [];
+
+    if (requiredPermissions.length === 0) return true;
+
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+
+    if (!user) return false;
+
+    // SUPER_ADMIN bypass
+    if (user.role === 'SUPER_ADMIN') return true;
+
+    const userPermissions: string[] = user.permissions || [];
+
+    return requiredPermissions.every((p) => userPermissions.includes(p));
+  }
+}
+
+/* export class PermissionsGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
@@ -45,4 +62,4 @@ export class PermissionsGuard implements CanActivate {
 
     return true;
   }
-}
+} */

@@ -17,6 +17,12 @@ export const PERMISSIONS = {
     UPDATE: 'post:update',
     DELETE: 'post:delete',
   },
+  /* COMMENT: {
+    CREATE: 'comment:create',
+    READ: 'comment:read',
+    UPDATE: 'comment:update',
+    DELETE: 'comment:delete',
+  }, */
 };
 
 export const ROLE_PERMISSIONS_MAP = {
@@ -26,12 +32,17 @@ export const ROLE_PERMISSIONS_MAP = {
   ],
 
   [ROLES.ADMIN]: [
+    // User
     PERMISSIONS.USER.READ,
     PERMISSIONS.USER.UPDATE,
+
+    // POST
     PERMISSIONS.POST.CREATE,
     PERMISSIONS.POST.READ,
     PERMISSIONS.POST.UPDATE,
   ],
 
-  [ROLES.MEMBER]: [PERMISSIONS.POST.READ],
+  [ROLES.MEMBER]: [
+    PERMISSIONS.POST.READ
+  ],
 };

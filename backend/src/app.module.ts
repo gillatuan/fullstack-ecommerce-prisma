@@ -8,7 +8,7 @@ import { exec } from 'child_process';
 import { GlobalExceptionFilter } from 'exception-filters/global-exception.filter';
 import { LoggerModule } from 'nestjs-pino';
 import { join } from 'path';
-import { PermissionsGuard } from 'rbac/permission.guard';
+import { PermissionGuard } from 'rbac/permission.guard';
 import { PermissionsModule } from './permissions/permissions.module';
 import { RolesModule } from './roles/roles.module';
 
@@ -52,7 +52,7 @@ import { RolesModule } from './roles/roles.module';
     },
     {
       provide: APP_GUARD,
-      useClass: PermissionsGuard,
+      useClass: PermissionGuard,
     },
   ],
 })

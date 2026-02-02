@@ -1,11 +1,15 @@
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { PrismaService } from '@/prisma/prisma.service';
 import {
+  BadRequestException,
   Injectable,
+  NotFoundException,
   UnprocessableEntityException,
   UseGuards,
 } from '@nestjs/common';
-import { Permission, Prisma } from 'generated/prisma/client';
+import aqp from 'api-query-params';
+import { ERRORS_DICTIONARY } from 'const/constraint/error-dictionary';
+import { Prisma } from 'generated/prisma/client';
 
 @UseGuards(JwtAuthGuard)
 @Injectable()
@@ -26,25 +30,128 @@ export class RolesService {
       });
     } catch (err) {
       if (err.code === 'P2002') {
-        throw new UnprocessableEntityException('Email already exists.');
+        throw new UnprocessableEntityException({
+          message: ERRORS_DICTIONARY.ITEM_DUPLICATED,
+          details: 'Email already exists.',
+        });
       }
       throw err;
     }
   }
 
-  findAll() {
-    return `This action returns all roles`;
+  async findAll(currentPage: number = 1, limit: number = 10, qs: string) {
+    const { filter, sort, population, projection } = aqp(qs);
+    delete filter.current;
+    delete filter.pageSize;
+
+    const offset = (+currentPage - 1) * +limit || 0;
+    const pageSize = +limit || 10;
+
+    const where: Prisma.RoleWhereInput = filter;
+    const orderBy: Prisma.RoleOrderByWithRelationInput | undefined = sort;
+    const select: Prisma.RoleSelect | undefined = projection;
+
+    const totalItems = await this.prismaService.role.count({ where });
+    const totalPages = Math.ceil(totalItems / pageSize);
+    const result = await this.prismaService.role.findMany({
+      skip: offset,
+      take: pageSize,
+      where,
+      orderBy,
+      select,
+    });
+
+    return {
+      meta: {
+        current: currentPage || 1, //trang hiện tại
+        pageSize, //số lượng bản ghi đã lấy
+        totalPages, //tổng số trang với điều kiện query
+        totalItems, // tổng số phần tử (số bản ghi)
+      },
+      result, //kết quả query
+    };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} role`;
+  async findOne(id: string) {
+    try {
+      return await this.prismaService.role.findUniqueOrThrow({
+        where: { id },
+      });
+    } catch (error) {
+      throw new BadRequestException({
+        message: ERRORS_DICTIONARY.ROLE_NOT_FOUND,
+        details: 'Role not found.',
+      });
+    }
   }
 
-  update(id: number, updateRoleDto: Prisma.RoleUpdateInput) {
-    return `This action updates a #${id} role`;
+  async update(id: string, updateRoleDto: Prisma.RoleUpdateInput) {
+    const result = await this.prismaService.permission.findUniqueOrThrow({
+      where: { id },
+    });
+
+    if (!result) {
+      throw new BadRequestException({
+        message: ERRORS_DICTIONARY.ROLE_NOT_FOUND,
+        details: 'Role not found.',
+      });
+    }
+
+    try {
+      return await this.prismaService.role.update({
+        where: { id },
+        data: updateRoleDto,
+        select: {
+          name: true,
+          description: true,
+          permissions: true,
+          users: true,
+        },
+      });
+    } catch (error) {
+      throw new BadRequestException({
+        message: ERRORS_DICTIONARY.FAILED_TO_UPDATE,
+        details: 'Failed to update Role.',
+      });
+    }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} role`;
+  async remove(id: string) {
+    // Kiểm tra role tồn tại
+    const role = await this.prismaService.role.findUnique({
+      where: { id },
+    });
+
+    if (!role) {
+      throw new NotFoundException({
+        message: ERRORS_DICTIONARY.ROLE_NOT_FOUND,
+        details: 'Role not found.',
+      });
+    }
+
+    // Không cho xóa role hệ thống
+    if (['SUPER_ADMIN', 'ADMIN', 'MEMBER'].includes(role.name)) {
+      throw new NotFoundException({
+        message: ERRORS_DICTIONARY.UNAUTHORIZED_EXCEPTION,
+        details: 'Cannot delete system role.',
+      });
+    }
+
+    return this.prismaService.$transaction(async (tx) => {
+      // 1. Xóa user-role mapping
+      await tx.userRole.deleteMany({
+        where: { roleId: id },
+      });
+
+      // 2. Xóa role-permission mapping
+      await tx.rolePermission.deleteMany({
+        where: { roleId: id },
+      });
+
+      // 3. Xóa role
+      return tx.role.delete({
+        where: { id },
+      });
+    });
   }
 }

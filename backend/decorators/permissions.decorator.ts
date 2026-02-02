@@ -1,6 +1,5 @@
-import { Permission } from "@/roles/types/roles.type";
 import { SetMetadata } from '@nestjs/common';
 
 export const PERMISSIONS_KEY = 'permissions';
-export const Permissions = (...permissions: Permission[]) =>
+export const RequirePermissions = (...permissions: string[]) =>
   SetMetadata(PERMISSIONS_KEY, permissions);

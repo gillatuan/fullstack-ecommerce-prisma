@@ -1,4 +1,3 @@
-import { Permission } from '@/roles/types/roles.type';
 import { UserGetPayload } from '@/users/types/user.type';
 import { RoleType } from 'generated/prisma/client';
 
@@ -22,7 +21,7 @@ export interface TokenPayload {
 export type RoleWithPermissions = {
   id: number;
   name: string;
-  permissions: Permission[];
+  permissions: string[];
 };
 
 export type AuthLoginRequest = {

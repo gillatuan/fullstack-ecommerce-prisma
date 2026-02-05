@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { Prisma } from 'generated/prisma/client';
 import { PermissionsController } from './permissions.controller';
 import { PermissionsService } from './permissions.service';
+import { PermissionDto } from './types/Permission.type';
 
 jest.mock('api-query-params', () => ({
   __esModule: true,
@@ -21,11 +21,11 @@ describe('PermissionsController', () => {
   };
 
   // ---------- ARRANGE ----------
-  const dto: Prisma.PermissionCreateInput = {
-    name: 'CREATE_USER',
-    apiPath: '/users',
-    method: 'POST',
-    module: 'PERMISSIONS',
+  const dto: PermissionDto = {
+    action: 'CREATE_USER',
+    resource: '/users',
+    id: '1',
+    roles: ['PERMISSIONS'],
   };
 
   beforeEach(async () => {
@@ -84,17 +84,25 @@ describe('PermissionsController', () => {
   });
 
   describe('create', () => {
-    it('should create a permission', async () => {
-      const created = { id: 1, ...dto };
-      const mockResult: Prisma.PermissionCreateInput = created;
+    it('should create permission', async () => {
+      const dto = {
+        action: 'CREATE',
+        resource: 'PRODUCT',
+      };
 
-      service.create.mockResolvedValue(mockResult);
+      const mockResult = {
+        id: '123',
+        action: 'CREATE',
+        resource: 'PRODUCT',
+        roles: [{ roleId: '1', permissionId: 'test' }],
+      };
 
-      // ---------- ACT ----------
+      jest.spyOn(service, 'create').mockResolvedValue(mockResult);
+
       const result = await controller.create(dto);
-      // ---------- ASSERT ----------
-      expect(service.create).toHaveBeenCalledWith(dto);
+
       expect(result).toEqual(mockResult);
+      expect(service.create).toHaveBeenCalledWith(dto);
     });
   });
 
@@ -103,7 +111,7 @@ describe('PermissionsController', () => {
   // =========================
   describe('findOne', () => {
     it('should return a permission by id', async () => {
-      const permission = {id: 1, ...dto}
+      const permission = { ...dto };
 
       mockPermissionService.findOne.mockResolvedValue(permission);
 
@@ -119,14 +127,40 @@ describe('PermissionsController', () => {
   // =========================
   describe('update', () => {
     it('should update a permission', async () => {
-      const permission = { id: '1', ...dto };
-      const updated = { ...permission, name: 'UPDATED_NAME' };
+      const dto = {
+        action: 'CREATE_USER',
+        resource: '/users',
 
-      mockPermissionService.update.mockResolvedValue(updated);
+        roles: {
+          connect: [
+            {
+              roleId_permissionId: {
+                roleId: 'PERMISSIONS_ROLE_ID',
+                permissionId: '1',
+              },
+            },
+          ],
+        },
+      };
 
-      const result = await controller.update('1', dto );
+      const updated = {
+        id: '1',
+        action: 'CREATE_USER',
+        resource: '/users',
 
-      expect(service.update).toHaveBeenCalledWith(+permission.id, dto);
+        roles: [
+          {
+            roleId: 'PERMISSIONS_ROLE_ID',
+            permissionId: '1',
+          },
+        ],
+      };
+
+      jest.spyOn(service, 'update').mockResolvedValue(updated as any);
+
+      const result = await controller.update('1', dto);
+
+      expect(service.update).toHaveBeenCalledWith('1', dto);
       expect(result).toEqual(updated);
     });
   });
@@ -136,13 +170,13 @@ describe('PermissionsController', () => {
   // =========================
   describe('remove', () => {
     it('should delete a permission', async () => {
-      const permission = { id: '1', ...dto };
+      const permission = { ...dto };
 
       mockPermissionService.remove.mockResolvedValue(permission);
 
       const result = await controller.remove(permission.id);
 
-      expect(service.remove).toHaveBeenCalledWith(+permission.id);
+      expect(service.remove).toHaveBeenCalledWith(permission.id);
       expect(result).toEqual(permission);
     });
   });

@@ -1,5 +1,6 @@
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { PrismaService } from '@/prisma/prisma.service';
+import { RoleDto } from '@/roles/dto/role.dto';
 import {
   BadRequestException,
   Injectable,
@@ -9,22 +10,32 @@ import {
 } from '@nestjs/common';
 import aqp from 'api-query-params';
 import { ERRORS_DICTIONARY } from 'const/constraint/error-dictionary';
-import { Prisma } from 'generated/prisma/client';
+import { Permission, Prisma } from 'generated/prisma/client';
 
 @UseGuards(JwtAuthGuard)
 @Injectable()
 export class RolesService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create(createRoleDto: Prisma.RoleCreateInput) {
+  async create(dto: RoleDto) {
     try {
-      return await this.prismaService.role.create({
+      return this.prismaService.role.create({
         data: {
-          ...createRoleDto,
-          name: createRoleDto.name.toUpperCase(),
+          name: dto.name,
+          description: dto.description,
+
+          permissions: dto.permissions
+            ? {
+                create: dto.permissions.map((permissionId) => ({
+                  permission: {
+                    connect: { id: permissionId },
+                  },
+                })),
+              }
+            : undefined,
         },
-        select: {
-          name: true,
+
+        include: {
           permissions: true,
         },
       });
@@ -49,7 +60,6 @@ export class RolesService {
 
     const where: Prisma.RoleWhereInput = filter;
     const orderBy: Prisma.RoleOrderByWithRelationInput | undefined = sort;
-    const select: Prisma.RoleSelect | undefined = projection;
 
     const totalItems = await this.prismaService.role.count({ where });
     const totalPages = Math.ceil(totalItems / pageSize);
@@ -58,7 +68,11 @@ export class RolesService {
       take: pageSize,
       where,
       orderBy,
-      select,
+      include: {
+        permissions: {
+          include: { permission: true },
+        },
+      },
     });
 
     return {
@@ -76,6 +90,11 @@ export class RolesService {
     try {
       return await this.prismaService.role.findUniqueOrThrow({
         where: { id },
+        include: {
+          permissions: {
+            include: { permission: true },
+          },
+        },
       });
     } catch (error) {
       throw new BadRequestException({
@@ -85,22 +104,27 @@ export class RolesService {
     }
   }
 
-  async update(id: string, updateRoleDto: Prisma.RoleUpdateInput) {
-    const result = await this.prismaService.permission.findUniqueOrThrow({
-      where: { id },
-    });
-
-    if (!result) {
-      throw new BadRequestException({
-        message: ERRORS_DICTIONARY.ROLE_NOT_FOUND,
-        details: 'Role not found.',
-      });
-    }
+  async update(id: string, updateRoleDto: RoleDto) {
+    await this.findOne(id);
 
     try {
       return await this.prismaService.role.update({
         where: { id },
-        data: updateRoleDto,
+        data: {
+          ...updateRoleDto,
+          permissions: updateRoleDto.permissions
+            ? {
+                deleteMany: {},
+                create: (updateRoleDto.permissions).map(
+                  (permissionId) => ({
+                    permission: {
+                      connect: { id: permissionId },
+                    },
+                  }),
+                ),
+              }
+            : undefined,
+        },
         select: {
           name: true,
           description: true,
@@ -117,17 +141,7 @@ export class RolesService {
   }
 
   async remove(id: string) {
-    // Kiểm tra role tồn tại
-    const role = await this.prismaService.role.findUnique({
-      where: { id },
-    });
-
-    if (!role) {
-      throw new NotFoundException({
-        message: ERRORS_DICTIONARY.ROLE_NOT_FOUND,
-        details: 'Role not found.',
-      });
-    }
+    const role = await this.findOne(id)
 
     // Không cho xóa role hệ thống
     if (['SUPER_ADMIN', 'ADMIN', 'MEMBER'].includes(role.name)) {

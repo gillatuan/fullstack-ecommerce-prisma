@@ -10,13 +10,14 @@ import {
 } from '@nestjs/common';
 import { Prisma } from 'generated/prisma/client';
 import { RolesService } from './roles.service';
+import { RoleDto } from "./dto/role.dto";
 
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
   @Post()
-  create(@Body() createRoleDto: Prisma.RoleCreateInput) {
+  create(@Body() createRoleDto: RoleDto) {
     return this.rolesService.create(createRoleDto);
   }
   @Get()
@@ -36,7 +37,7 @@ export class RolesController {
   @Patch(':id')
   update(
     @Param('id') id: string,
-    @Body() updateRoleDto: Prisma.RoleUpdateInput,
+    @Body() updateRoleDto: RoleDto,
   ) {
     return this.rolesService.update(id, updateRoleDto);
   }

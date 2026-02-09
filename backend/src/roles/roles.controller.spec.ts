@@ -52,7 +52,7 @@ describe('RolesController', () => {
       name: 'EDITOR',
       description: '',
       permissions: [{ roleId: 'role-1', permissionId: 'perm-3' }],
-      users: []
+      users: [],
     };
 
     jest.spyOn(service, 'update').mockResolvedValue(mockResult);
@@ -61,5 +61,23 @@ describe('RolesController', () => {
 
     expect(service.update).toHaveBeenCalledWith('role-1', dto);
     expect(result).toEqual(mockResult);
+  });
+
+  it('should remove role', async () => {
+    const mockDeleted: RoleWithRelations = {
+      id: 'role-1',
+      name: 'ADMIN',
+      description: '',
+
+      permissions: [],
+      users: [],
+    };
+
+    jest.spyOn(service, 'remove').mockResolvedValue(mockDeleted);
+
+    const result = await controller.remove('role-1');
+
+    expect(service.remove).toHaveBeenCalledWith('role-1');
+    expect(result.id).toBe('role-1');
   });
 });

@@ -2,13 +2,12 @@ import { AuthModule } from '@/auth/auth.module';
 import { UsersModule } from '@/users/users.module';
 import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { APP_FILTER } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { exec } from 'child_process';
 import { GlobalExceptionFilter } from 'exception-filters/global-exception.filter';
 import { LoggerModule } from 'nestjs-pino';
 import { join } from 'path';
-import { PermissionGuard } from 'rbac/permission.guard';
 import { PermissionsModule } from './permissions/permissions.module';
 import { RolesModule } from './roles/roles.module';
 
@@ -49,10 +48,6 @@ import { RolesModule } from './roles/roles.module';
     {
       provide: APP_FILTER,
       useClass: GlobalExceptionFilter,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: PermissionGuard,
     },
   ],
 })

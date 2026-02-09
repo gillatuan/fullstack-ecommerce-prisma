@@ -12,7 +12,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
 
   // include PermissionGuard
-  app.useGlobalGuards(new PermissionGuard(app.get(Reflector)));
+  // app.useGlobalGuards(new PermissionGuard(app.get(Reflector)));
 
   app.use(cookieParser());
 

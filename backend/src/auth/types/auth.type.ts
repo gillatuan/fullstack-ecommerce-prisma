@@ -1,14 +1,13 @@
-import { UserGetPayload } from '@/users/types/user.type';
 import { RoleType } from 'generated/prisma/client';
 
 export type AuthUser = {
   id: string;
-  name: string;
+  fullName: string;
   email: string;
-  password: string;
-  role: RoleType | null;
-  createdAt: Date | null;
-  updatedAt: Date | null;
+  password?: string;
+  role?: RoleType;
+  createdAt: Date;
+  updatedAt: Date;
 };
 
 export interface TokenPayload {
@@ -16,7 +15,7 @@ export interface TokenPayload {
   email: string;
   permissions: string[];
   userId: string;
-  role: string | null;
+  roles?: string[];
 }
 export type RoleWithPermissions = {
   id: number;
@@ -29,7 +28,7 @@ export type AuthLoginRequest = {
   password: string;
 };
 
-export interface AuthLoginResponse extends UserGetPayload {
-  role: RoleType;
+export interface AuthLoginResponse extends Omit<AuthUser, 'password'> {
+  roles: RoleType[];
   permissions: string[] | [];
 }

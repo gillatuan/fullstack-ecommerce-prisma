@@ -72,6 +72,7 @@ export class RolesService {
         permissions: {
           include: { permission: true },
         },
+        users: true
       },
     });
 
@@ -94,6 +95,7 @@ export class RolesService {
           permissions: {
             include: { permission: true },
           },
+          users: true
         },
       });
     } catch (error) {
@@ -107,6 +109,11 @@ export class RolesService {
   async update(id: string, updateRoleDto: RoleDto) {
     await this.findOne(id);
 
+    // sync N-N
+    await this.prismaService.rolePermission.deleteMany({
+      where: { roleId: id },
+    });
+
     try {
       return await this.prismaService.role.update({
         where: { id },
@@ -114,7 +121,6 @@ export class RolesService {
           ...updateRoleDto,
           permissions: updateRoleDto.permissions
             ? {
-                deleteMany: {},
                 create: (updateRoleDto.permissions).map(
                   (permissionId) => ({
                     permission: {
@@ -125,9 +131,7 @@ export class RolesService {
               }
             : undefined,
         },
-        select: {
-          name: true,
-          description: true,
+        include: {
           permissions: true,
           users: true,
         },

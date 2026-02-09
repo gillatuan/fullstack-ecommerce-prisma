@@ -1,3 +1,4 @@
+import { IUser } from "@/users/types/user.type";
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { PERMISSIONS_KEY } from 'decorator/permissions.decorator';
@@ -7,59 +8,25 @@ export class PermissionGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredPermissions =
-      this.reflector.get<string[]>(PERMISSIONS_KEY, context.getHandler()) || [];
+    const requiredPermissions = this.reflector.getAllAndOverride<string[]>(PERMISSIONS_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]) || [];
 
     if (requiredPermissions.length === 0) return true;
 
     const request = context.switchToHttp().getRequest();
-    const user = request.user;
+    const user = request.user; // Dữ liệu này do JwtStrategy gán vào sau khi validate thành công
 
-    if (!user) return false;
+    if (!user) {
+      // Nếu user undefined, chứng tỏ JwtAuthGuard chưa chạy hoặc token lỗi
+      return false; 
+    }
 
-    // SUPER_ADMIN bypass
-    if (user.role === 'SUPER_ADMIN') return true;
+    // Kiểm tra SUPER_ADMIN (Dựa vào mảng role name đã flatten ở bước trên)
+    if (user.roles?.includes('SUPER_ADMIN')) return true;
 
     const userPermissions: string[] = user.permissions || [];
-
     return requiredPermissions.every((p) => userPermissions.includes(p));
   }
 }
-
-/* export class PermissionsGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
-
-  canActivate(context: ExecutionContext): boolean {
-    const requiredPermissions = this.reflector.getAllAndOverride<string[]>(
-      PERMISSIONS_KEY,
-      [context.getHandler(), context.getClass()],
-    );
-
-    if (!requiredPermissions || requiredPermissions.length === 0) {
-      return true;
-    }
-
-    const request = context.switchToHttp().getRequest();
-    const user = request.user;
-
-    if (!user || !user.permissions) {
-      throw new ForbiddenException({
-        message: ERRORS_DICTIONARY.PERMISSION_DENIED,
-        details: 'User not allowed.',
-      });
-    }
-
-    const hasPermission = requiredPermissions.every((permission) =>
-      user.permissions.includes(permission),
-    );
-
-    if (!hasPermission) {
-      throw new ForbiddenException({
-        message: ERRORS_DICTIONARY.ROLE_DENIED,
-        details: 'Access denied.',
-      });
-    }
-
-    return true;
-  }
-} */

@@ -107,7 +107,7 @@ async function seedSuperAdmin() {
 
   const email = process.env.SUPER_ADMIN_EMAIL || 'super_admin@gmail.com';
   const hashedPassword = await argon2.hash(
-    process.env.SUPER_ADMIN_PASSWORD || 'hashedpassword',
+    process.env.SUPER_ADMIN_PASSWORD || 'Admin@3010',
   );
 
   await prisma.user.create({
@@ -198,12 +198,12 @@ async function seedMember() {
 
 async function main() {
   console.log('🌱 Seeding RBAC...');
-  await seedRoles();
+  /* await seedRoles();
   await seedPermissions();
   await seedRolePermissions();
   await seedSuperAdmin();
   await seedAdmin();
-  await seedMember();
+  await seedMember(); */
 
   console.log('✅ RBAC seeded successfully');
 }

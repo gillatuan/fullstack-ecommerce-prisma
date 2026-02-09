@@ -6,16 +6,16 @@ export const mockUser: AuthLoginResponse = {
   id: 'abc',
   fullName: 'testuser',
   email: 'member_for_test@gmail.com',
-  password: 'hashedpassword',
   role: RoleType.MEMBER,
   createdAt: new Date(),
+  updatedAt: new Date(),
   permissions: ['post:create'],
   roles: [],
 };
 
 export const tokenPayload: TokenPayload = {
   userId: mockUser.id,
-  role: mockUser.role,
+  roles: mockUser.role && [mockUser.role] || undefined,
   sub: mockUser.id,
   email: mockUser.email,
   permissions: mockUser.permissions,
@@ -24,9 +24,10 @@ export const tokenPayload: TokenPayload = {
 export const mockUserResponse: UserGetPayload = {
   id: mockUser.id,
   email: mockUser.email,
-  password: mockUser.password,
   fullName: mockUser.fullName,
   createdAt: mockUser.createdAt,
+  updatedAt: mockUser.updatedAt,
+  refreshToken: '',
   roles: [
     {
       role: {

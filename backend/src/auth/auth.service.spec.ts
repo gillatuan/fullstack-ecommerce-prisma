@@ -8,6 +8,7 @@ import {
   tokenPayload,
 } from 'const/mock/common';
 import { UsersService } from '../users/users.service';
+import { PrismaService } from '@/prisma/prisma.service';
 import { AuthService } from './auth.service';
 import { RoleType } from "generated/prisma/enums";
 import { ERRORS_DICTIONARY } from "const/constraint/error-dictionary";
@@ -28,9 +29,19 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        { provide: UsersService, useValue: { getUser: jest.fn() } },
-        { provide: JwtService, useValue: { sign: jest.fn() } },
-        { provide: ConfigService, useValue: { getOrThrow: jest.fn() } },
+        { provide: PrismaService, useValue: {} },
+        { provide: UsersService, useValue: { getUser: jest.fn(), update: jest.fn() } },
+        { provide: JwtService, useValue: { signAsync: jest.fn() } },
+        {
+          provide: ConfigService,
+          useValue: { getOrThrow: jest.fn((key: string) => {
+            if (key === 'JWT_SECRET') return JWT_SECRET;
+            if (key === 'JWT_EXPIRATION') return JWT_EXPIRATION;
+            if (key === 'JWT_REFRESH_SECRET') return JWT_SECRET;
+            if (key === 'JWT_REFRESH_TOKEN_EXPIRATION') return '7d';
+            return undefined;
+          }) },
+        },
       ],
     }).compile();
 
@@ -50,17 +61,15 @@ describe('AuthService', () => {
         cookie: jest.fn(),
       } as any;
 
-      // ✅ mock config
-      (configService.getOrThrow as jest.Mock).mockReturnValue(JWT_EXPIRATION);
 
-      // ✅ mock jwt sign
-      (jwtService.sign as jest.Mock).mockReturnValue(JWT_SECRET);
+      // ✅ mock jwt signAsync
+      (jwtService.signAsync as jest.Mock).mockResolvedValue(JWT_SECRET);
 
       // 👉 ACT
       const result = await authservice.login(mockUser, mockResponse);
 
       // 👉 ASSERT jwt sign
-      expect(jwtService.sign).toHaveBeenCalledWith(tokenPayload);
+      expect(jwtService.signAsync).toHaveBeenCalledWith(tokenPayload, expect.any(Object));
 
       // 👉 ASSERT cookie
       expect(mockResponse.cookie).toHaveBeenCalledWith(
@@ -97,9 +106,11 @@ describe('AuthService', () => {
 
       expect(result).toMatchObject({
         email: mockUser.email,
-        role: RoleType.ADMIN,
         permissions: ['post:create'],
       });
+
+      // roles is an array of RoleType
+      expect(result.roles).toContain(RoleType.ADMIN);
 
     });
 

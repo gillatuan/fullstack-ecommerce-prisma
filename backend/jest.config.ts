@@ -7,6 +7,7 @@ const config: Config = {
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
+  transformIgnorePatterns: ['node_modules/(?!(api-query-params)/)'],
 
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
@@ -17,7 +18,7 @@ const config: Config = {
 
   collectCoverageFrom: ['src/**/*.(t|j)s'],
   coverageDirectory: './coverage',
-  testEnvironment: 'node',
+  testEnvironment: 'node'
 };
 
 export default config;

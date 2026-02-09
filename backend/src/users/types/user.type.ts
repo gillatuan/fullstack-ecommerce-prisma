@@ -22,7 +22,7 @@ export type UserGetPayload = Omit<
       };
     };
   }>,
-  'password'
+  ''
 >;
 
 export interface IUser {

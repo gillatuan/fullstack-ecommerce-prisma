@@ -24,6 +24,7 @@ export const mockUserResponse: UserGetPayload = {
   id: mockUser.id,
   email: mockUser.email,
   fullName: mockUser.fullName,
+  password: 'hashedpassword',
   createdAt: mockUser.createdAt,
   updatedAt: mockUser.updatedAt,
   refreshToken: '',

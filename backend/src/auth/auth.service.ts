@@ -92,7 +92,16 @@ export class AuthService {
 
     this.setTokens(response, refreshToken, accessToken);
 
-    return { tokenPayload };
+    // Return minimal user profile (do not expose tokens)
+    return {
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+        roles: user.roles,
+        permissions: user.permissions,
+      },
+    };
   }
 
   async verifyUser(

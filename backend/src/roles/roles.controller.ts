@@ -34,6 +34,11 @@ export class RolesController {
     return this.rolesService.findOne(id);
   }
 
+  @Get('by-name/:name')
+  findByName(@Param('name') name: string) {
+    return this.rolesService.findByName(name);
+  }
+
   @Patch(':id')
   update(
     @Param('id') id: string,

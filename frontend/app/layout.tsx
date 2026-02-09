@@ -3,7 +3,7 @@ import Header from "components/Header/header";
 import { Container, CssBaseline } from "@mui/material";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import authenticated from "./auth/authenticated";
+import getCurrentUser from "./auth/get-current-user";
 import Providers from "./providers";
 
 const inter = Inter( { subsets: [ "latin" ] } );
@@ -19,12 +19,11 @@ export default async function RootLayout ( {
   children: React.ReactNode;
 }> ) {
 
-  const isAuthenticated = await authenticated();
-
+  const currentUser = await getCurrentUser();
   return (
     <html lang="en" suppressHydrationWarning={true} data-qb-installed={true}>
       <body className={inter.className}>
-        <Providers authenticated={isAuthenticated}>
+        <Providers initialUser={currentUser}>
           <CssBaseline />
           <Header />
           <Container>{children}</Container>

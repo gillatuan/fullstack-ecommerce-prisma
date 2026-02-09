@@ -24,7 +24,15 @@ export default async function createUser(
     };
   }
 
-  const res = await post("users", validatedFields.data)
+  // include role if provided (admin can set role)
+  const payload: any = { ...validatedFields.data };
+  const role = formData.get('role');
+  if (role) {
+    const roleName = String(role);
+    payload.roles = [roleName];
+  }
+
+  const res = await post("users", payload)
   if (res.error) {
     return {
       message: res.error,

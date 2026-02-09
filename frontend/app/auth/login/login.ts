@@ -1,11 +1,9 @@
 "use server"
 
 import { post } from "common/util/fetch"
-import { AUTHENTICATION_COOKIE } from "constants/common"
+// Backend sets HttpOnly authentication cookie; no direct token handling here
 import { loginFormSchema } from "schemas/authSchema"
 import { LoginFormState } from "types/auth"
-import { jwtDecode } from "jwt-decode"
-import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 
 export default async function login(
@@ -36,31 +34,10 @@ export default async function login(
     }
   }
 
-  const setCookieHeader = res.response?.headers.get("Set-Cookie")
-  if (setCookieHeader) {
-    const token = setCookieHeader.split(";")[0].split("=")[1]
-    ;(await cookies()).set({
-      name: AUTHENTICATION_COOKIE,
-      value: token,
-      secure: true,
-      httpOnly: true,
-      expires: new Date(jwtDecode(token).exp! * 1000),
-    })
-  }
+  // Backend sets HttpOnly cookies; frontend should not read tokens.
+  // The backend also returns the user profile payload in `res.data.user`.
+  // We simply redirect on success and let the layout /auth/me endpoint
+  // obtain the current user from the cookie.
 
   redirect("/")
 }
-
-/* const setAuthCookie = async (response: Response) => {
-  const setCookieHeader = response.headers.get("Set-Cookie")
-  if (setCookieHeader) {
-    const token = setCookieHeader.split(";")[0].split("=")[1]
-    ;(await cookies()).set({
-      name: AUTHENTICATION_COOKIE,
-      value: token,
-      secure: true,
-      httpOnly: true,
-      expires: new Date(jwtDecode(token).exp! * 1000),
-    })
-  }
-} */

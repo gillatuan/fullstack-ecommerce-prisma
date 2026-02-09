@@ -8,11 +8,26 @@ const getHeaders = async () => ({
 });
 
 export const post = async (path: string, data: LoginFormSchemaType) => {
-  const res = await fetch(`${API_URL}/${API_VERSION}/${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...(await getHeaders()) },
-    body: JSON.stringify(data),
-  });
+  const url = `${API_URL}/${API_VERSION}/${path}`;
+
+  const doRequest = async () => {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...(await getHeaders()) },
+      credentials: 'include',
+      body: JSON.stringify(data),
+    });
+    return res;
+  };
+
+  let res = await doRequest();
+
+  // If access token expired, attempt refresh once then retry
+  if (res.status === 401) {
+    await attemptRefresh();
+    res = await doRequest();
+  }
+
   const parsedRes = await res.json();
   if (!res.ok) {
     return { error: getErrorMessage(parsedRes), data: null };
@@ -21,8 +36,30 @@ export const post = async (path: string, data: LoginFormSchemaType) => {
 };
 
 export const get = async (path: string) => {
-  const res = await fetch(`${API_URL}/${path}`, {
-    headers: { ...(await getHeaders()) },
-  });
+  const url = `${API_URL}/${path}`;
+
+  const doRequest = async () => {
+    return fetch(url, {
+      headers: { ...(await getHeaders()) },
+      credentials: 'include',
+    });
+  };
+
+  let res = await doRequest();
+  if (res.status === 401) {
+    await attemptRefresh();
+    res = await doRequest();
+  }
+
   return res.json();
 };
+
+async function attemptRefresh() {
+  try {
+    const refreshUrl = `${API_URL}/${API_VERSION}/auth/refresh`;
+    const r = await fetch(refreshUrl, { method: 'POST', credentials: 'include' });
+    return r.ok;
+  } catch (e) {
+    return false;
+  }
+}

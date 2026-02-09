@@ -15,6 +15,7 @@ export type LoginFormState = {
   };
   message?: string
   data?: JWTPayload | null;
+  details?: string
 };
 
 export type SignupFormState = {

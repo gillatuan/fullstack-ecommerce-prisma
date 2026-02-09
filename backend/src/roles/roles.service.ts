@@ -106,6 +106,25 @@ export class RolesService {
     }
   }
 
+  async findByName(name: string) {
+    try {
+      return await this.prismaService.role.findUniqueOrThrow({
+        where: { name },
+        include: {
+          permissions: {
+            include: { permission: true },
+          },
+          users: true,
+        },
+      });
+    } catch (error) {
+      throw new BadRequestException({
+        message: ERRORS_DICTIONARY.ROLE_NOT_FOUND,
+        details: 'Role not found.',
+      });
+    }
+  }
+
   async update(id: string, updateRoleDto: RoleDto) {
     await this.findOne(id);
 

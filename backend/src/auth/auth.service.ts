@@ -24,19 +24,22 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async getTokens(userId: string, email: string) {
-    const payload = { id: userId, email };
+  async getTokens(tokenPayload: TokenPayload) {
+    const accessPromise = this.jwtService.signAsync(tokenPayload, {
+      secret: this.configService.getOrThrow('JWT_SECRET'),
+      expiresIn: this.configService.getOrThrow('JWT_EXPIRATION'),
+    });
 
-    const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(payload, {
-        secret: this.configService.getOrThrow('JWT_SECRET'),
-        expiresIn: this.configService.getOrThrow('JWT_EXPIRATION'),
-      }),
-      this.jwtService.signAsync(payload, {
+    // Refresh token should not contain full permissions; keep minimal info
+    const refreshPromise = this.jwtService.signAsync(
+      { sub: tokenPayload.sub, email: tokenPayload.email },
+      {
         secret: this.configService.getOrThrow('JWT_REFRESH_SECRET'),
         expiresIn: this.configService.getOrThrow('JWT_REFRESH_TOKEN_EXPIRATION'),
-      }),
-    ]);
+      },
+    );
+
+    const [accessToken, refreshToken] = await Promise.all([accessPromise, refreshPromise]);
 
     return { accessToken, refreshToken };
   }
@@ -76,12 +79,6 @@ export class AuthService {
   }
 
   async login(user: AuthLoginResponse, response: Response) {
-    const { accessToken, refreshToken } = await this.getTokens(
-      user.id,
-      user.email,
-    );
-    await this.updateRefreshToken(user.id, refreshToken);
-
     const tokenPayload: TokenPayload = {
       sub: user.id,
       email: user.email,
@@ -89,9 +86,11 @@ export class AuthService {
       userId: user.id,
       roles: user.roles,
     };
-    const token = this.jwtService.sign(tokenPayload);
 
-    this.setTokens(response, refreshToken, token);
+    const { accessToken, refreshToken } = await this.getTokens(tokenPayload);
+    await this.updateRefreshToken(user.id, refreshToken);
+
+    this.setTokens(response, refreshToken, accessToken);
 
     return { tokenPayload };
   }
@@ -161,8 +160,13 @@ export class AuthService {
       });
     }
 
+    const tokenPayload: TokenPayload = {
+      sub: user.id,
+      email: user.email,
+      userId: user.id,
+    };
     // Nếu khớp, tạo cặp token mới
-    const tokens = await this.getTokens(user.id, user.email);
+    const tokens = await this.getTokens(tokenPayload);
     await this.updateRefreshToken(user.id, tokens.refreshToken);
 
     this.setTokens(res, tokens.refreshToken, tokens.accessToken);

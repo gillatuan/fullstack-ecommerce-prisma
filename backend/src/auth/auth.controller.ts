@@ -2,7 +2,7 @@ import { AuthService } from '@/auth/auth.service';
 import { LocalAuthGuard } from '@/auth/guards/local-auth.guard';
 import { Controller, Post, Res, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { CurrentUser } from 'decorators/current-user.decorator';
+import { CurrentUser } from 'decorator/current-user.decorator';
 import type { Response } from 'express';
 import type { AuthLoginResponse } from './types/auth.type';
 

@@ -69,11 +69,26 @@ export type UserWithPermissions = Prisma.UserGetPayload<{
 // Chuyển đổi dữ liệu Prisma thành mảng permission string: ["user:create", "role:read"]
 export const flattenPermissions = (user: any): string[] => {
   const permissions = new Set<string>();
+
+  // If user.permissions already present and is an array of strings, return it
+  if (Array.isArray(user?.permissions) && user.permissions.every((x: any) => typeof x === 'string')) {
+    return Array.from(new Set(user.permissions));
+  }
+
+  // If roles are simple strings, we cannot derive permissions here
+  // so return empty list (guard will rely on user.permissions)
+  if (Array.isArray(user?.roles) && user.roles.length > 0 && typeof user.roles[0] === 'string') {
+    return [];
+  }
+
+  // Otherwise assume Prisma shape: roles -> role -> permissions -> permission
   user?.roles?.forEach((ur: any) => {
-    ur.role?.permissions?.forEach((rp: any) => {
+    const role = ur.role || ur;
+    role?.permissions?.forEach((rp: any) => {
       const p = rp.permission;
-      if (p) permissions.add(`${p.resource}:${p.action}`);
+      if (p && p.resource && p.action) permissions.add(`${p.resource}:${p.action}`);
     });
   });
+
   return Array.from(permissions);
 };

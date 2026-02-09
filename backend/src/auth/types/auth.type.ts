@@ -13,7 +13,7 @@ export type AuthUser = {
 export interface TokenPayload {
   sub: string;
   email: string;
-  permissions: string[];
+  permissions?: string[];
   userId: string;
   roles?: string[];
 }

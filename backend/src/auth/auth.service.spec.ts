@@ -87,12 +87,12 @@ describe('AuthService', () => {
 
       const result = await authservice.verifyUser(
         mockUser.email,
-        mockUser.password,
+        'Admin@3010',
       );
       expect(usersService.getUser).toHaveBeenCalledWith({ email: mockUser.email });
       expect(argon2.verify).toHaveBeenCalledWith(
         'hashedpassword',
-        mockUser.password,
+        'Admin@3010',
       );
 
       expect(result).toMatchObject({

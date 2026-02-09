@@ -23,30 +23,36 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
+    // Support tokens signed with `sub`, `userId` or legacy `id`
+    const userId = payload?.sub || payload?.userId || payload?.id;
+
     const user = await this.prisma.user.findUnique({
-      where: { id: payload.id },
+      where: { id: userId },
       include: {
         roles: {
-          include: { role: true },
+          include: {
+            role: {
+              include: {
+                permissions: {
+                  include: { permission: true },
+                },
+              },
+            },
+          },
         },
       },
     });
 
     if (!user) throw new UnauthorizedException();
 
-    // Lấy danh sách Role name (để check SUPER_ADMIN)
-    const roleNames = user.roles.map((ur) => ur.role.name);
-
-    // Lấy danh sách Permission string (để check PermissionGuard)
-    const dbUser = await this.prisma.user.findUnique({
-      where: { id: payload.id },
-    });
+    const roleNames = (user.roles || []).map((ur) => ur.role?.name).filter(Boolean);
+    const permissions = flattenPermissions(user);
 
     return {
       id: user.id,
       email: user.email,
       roles: roleNames,
-      permissions: flattenPermissions(dbUser),
+      permissions,
     };
   }
 }

@@ -159,18 +159,13 @@ export class UsersService {
     }
 
     return this.prismaService.$transaction(async (tx) => {
-      // 1. Xóa user-role mapping
+      // 1. Xóa user-role mapping của user
       await tx.userRole.deleteMany({
-        where: { roleId: id },
+        where: { userId: id },
       });
 
-      // 2. Xóa role-permission mapping
-      await tx.rolePermission.deleteMany({
-        where: { roleId: id },
-      });
-
-      // 3. Xóa role
-      return tx.role.delete({
+      // 2. Xóa user
+      return tx.user.delete({
         where: { id },
       });
     });

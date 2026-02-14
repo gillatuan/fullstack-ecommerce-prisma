@@ -19,23 +19,25 @@ import { UsersService } from './users.service';
 import { CurrentUser } from "decorator/current-user.decorator";
 
 @Controller('users')
-@UseGuards(JwtAuthGuard, PermissionGuard)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
-  @RequirePermissions('user:create')
+  // ✅ Allows unauthenticated signup (public endpoint)
+  // JwtAuthGuard is skipped for signup; currentUser will be null for public users
   @UseInterceptors(NoFilesInterceptor())
   create(@Body() createUserRequest: UserCreateInput, @CurrentUser() currentUser) {
     return this.usersService.create(createUserRequest, currentUser);
   }
 
   @Get('me')
+  @UseGuards(JwtAuthGuard, PermissionGuard)
   getMe(@CurrentUser() user: UserGetPayload) {
     return this.usersService.getMe(user.id)
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard, PermissionGuard)
   @RequirePermissions('user:read')
   findAll(
     @Query('current') current: string,
@@ -46,18 +48,21 @@ export class UsersController {
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard, PermissionGuard)
   @RequirePermissions('user:read')
   findOne(@Param('id') id: string) {
     return this.usersService.findOne(id);
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, PermissionGuard)
   @RequirePermissions('user:update')
   update(@Param('id') id: string, @Body() data: any) {
     return this.usersService.update(id, data);
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, PermissionGuard)
   @RequirePermissions('user:delete')
   remove(@Param('id') id: string) {
     return this.usersService.remove(id);

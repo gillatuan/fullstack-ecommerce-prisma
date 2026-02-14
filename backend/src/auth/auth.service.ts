@@ -50,23 +50,34 @@ export class AuthService {
       expires.getMilliseconds() +
         ms(
           this.configService.getOrThrow<string>(
+            'JWT_REFRESH_TOKEN_EXPIRATION',
+          ) as unknown as ms.StringValue,
+        ),
+    );
+
+    // Đặt Refresh Token vào cookie (dài hạn)
+    response.cookie('Refresh', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      path: '/api/v1/auth/refresh',
+      expires
+    });
+    
+    const expiresToken = new Date();
+    expiresToken.setMilliseconds(
+      expiresToken.getMilliseconds() +
+        ms(
+          this.configService.getOrThrow<string>(
             'JWT_EXPIRATION',
           ) as unknown as ms.StringValue,
         ),
     );
 
     // Đặt Access Token vào cookie (ngắn hạn)
-    // Đặt Refresh Token vào cookie (dài hạn)
-    response.cookie('Refresh', refreshToken, {
-      httpOnly: true,
-      secure: true,
-      path: '/api/v1/auth/refresh',
-    });
-
     response.cookie('Authentication', token, {
-      secure: true,
       httpOnly: true,
-      expires,
+      secure: true,
+      expires: expiresToken,
     });
   }
 

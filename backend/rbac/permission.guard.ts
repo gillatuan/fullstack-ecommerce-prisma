@@ -1,18 +1,25 @@
-import { IUser, flattenPermissions } from '@/users/types/user.type';
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Reflector } from '@nestjs/core';
-import { PERMISSIONS_KEY } from 'decorator/permissions.decorator';
 import { TokenPayload } from '@/auth/types/auth.type';
+import { IUser, flattenPermissions } from '@/users/types/user.type';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+import { ERRORS_DICTIONARY } from 'const/constraint/error-dictionary';
+import { PERMISSIONS_KEY } from 'decorator/permissions.decorator';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {
   constructor(private reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
-    const requiredPermissions = this.reflector.getAllAndOverride<string[]>(PERMISSIONS_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]) || [];
+    const requiredPermissions =
+      this.reflector.getAllAndOverride<string[]>(PERMISSIONS_KEY, [
+        context.getHandler(),
+        context.getClass(),
+      ]) || [];
 
     if (requiredPermissions.length === 0) return true;
 
@@ -21,13 +28,11 @@ export class PermissionGuard implements CanActivate {
 
     if (!user) {
       // Nếu user undefined, chứng tỏ JwtAuthGuard chưa chạy hoặc token lỗi
-      return false; 
+      return false;
     }
 
     // Kiểm tra SUPER_ADMIN (roles có thể là mảng string hoặc mảng mapping)
-    const roleNames: string[] = Array.isArray(user.roles)
-      ? user.roles
-      : [];
+    const roleNames: string[] = Array.isArray(user.roles) ? user.roles : [];
 
     if (roleNames.includes('SUPER_ADMIN')) return true;
 
@@ -36,6 +41,17 @@ export class PermissionGuard implements CanActivate {
       ? user.permissions
       : flattenPermissions(user);
 
-    return requiredPermissions.every((p) => userPermissions.includes(p));
+    const hasPermission = requiredPermissions.every((p) =>
+      userPermissions.includes(p),
+    );
+    if (!hasPermission) {
+      // CUSTOM RESPONSE LỖI TẠI ĐÂY
+      throw new ForbiddenException({
+        message: ERRORS_DICTIONARY.PERMISSION_DENIED,
+        details: 'You are not allowed to create User',
+      });
+    }
+
+    return true;
   }
 }

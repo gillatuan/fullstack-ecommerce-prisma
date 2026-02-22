@@ -12,11 +12,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { NoFilesInterceptor } from '@nestjs/platform-express';
+import { CurrentUser } from 'decorator/current-user.decorator';
 import { RequirePermissions } from 'decorator/permissions.decorator';
 import { PermissionGuard } from 'rbac/permission.guard';
 import type { UserCreateInput, UserGetPayload } from './types/user.type';
 import { UsersService } from './users.service';
-import { CurrentUser } from "decorator/current-user.decorator";
 
 @Controller('users')
 export class UsersController {
@@ -26,14 +26,19 @@ export class UsersController {
   // ✅ Allows unauthenticated signup (public endpoint)
   // JwtAuthGuard is skipped for signup; currentUser will be null for public users
   @UseInterceptors(NoFilesInterceptor())
-  create(@Body() createUserRequest: UserCreateInput, @CurrentUser() currentUser) {
+  @UseGuards(JwtAuthGuard, PermissionGuard)
+  @RequirePermissions('user:create')
+  create(
+    @Body() createUserRequest: UserCreateInput,
+    @CurrentUser() currentUser,
+  ) {
     return this.usersService.create(createUserRequest, currentUser);
   }
 
   @Get('me')
   @UseGuards(JwtAuthGuard, PermissionGuard)
   getMe(@CurrentUser() user: UserGetPayload) {
-    return this.usersService.getMe(user.id)
+    return this.usersService.getMe(user.id);
   }
 
   @Get()
